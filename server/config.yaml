@@ -2,13 +2,13 @@
 
 # jwt configuration
 jwt:
-  signing-key: 'qmPlus'
+  signing-key: 'qxqytq'
   expires-time: 604800
   buffer-time: 86400
 
 # zap logger configuration
 zap:
-  level: 'info'
+  level: 'debug'
   format: 'console'
   prefix: '[GIN-VUE-ADMIN]'
   director: 'log'
@@ -56,9 +56,9 @@ captcha:
 mysql:
   path: '127.0.0.1:3306'
   config: 'charset=utf8mb4&parseTime=True&loc=Local'
-  db-name: 'qmPlus'
+  db-name: 'log_analysis_management'
   username: 'root'
-  password: 'Aa@6447985'
+  password: 'k!2a7Lrn3'
   max-idle-conns: 10
   max-open-conns: 100
   log-mode: false

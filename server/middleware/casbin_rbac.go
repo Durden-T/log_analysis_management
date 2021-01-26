@@ -31,3 +31,22 @@ func CasbinHandler() gin.HandlerFunc {
 		}
 	}
 }
+
+func AppHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims, _ := c.Get("claims")
+		waitUse := claims.(*request.CustomClaims)
+		// 获取用户的角色
+		sub := waitUse.AuthorityId
+		app := c.GetHeader("app")
+		pass, _ := service.CheckAppPermission(sub, app)
+
+		if global.GVA_CONFIG.System.Env == "develop" || pass {
+			c.Next()
+		} else {
+			response.FailWithDetailed(gin.H{}, "权限不足", c)
+			c.Abort()
+			return
+		}
+	}
+}
