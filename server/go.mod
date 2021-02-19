@@ -3,66 +3,39 @@ module gin-vue-admin
 go 1.14
 
 require (
-	github.com/RussellLuo/timingwheel v0.0.0-20201029015908-64de9d088c74
+	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.2
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/antlabs/timer v0.0.5
 	github.com/casbin/casbin v1.9.1
-	github.com/casbin/casbin/v2 v2.11.0
-	github.com/casbin/gorm-adapter/v3 v3.0.2
+	github.com/casbin/casbin/v2 v2.23.4
+	github.com/casbin/gorm-adapter/v3 v3.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/eapache/queue v1.1.0 // indirect
-	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-ole/go-ole v1.2.4 // indirect
-	github.com/go-openapi/spec v0.19.7 // indirect
-	github.com/go-openapi/swag v0.19.8 // indirect
-	github.com/go-playground/validator/v10 v10.3.0 // indirect
-	github.com/go-redis/redis v6.15.7+incompatible
+	github.com/go-ole/go-ole v1.2.5 // indirect
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/golang/protobuf v1.4.2 // indirect
-	github.com/gookit/color v1.3.1
-	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
-	github.com/jordan-wright/email v0.0.0-20200824153738-3f5bafa1cd84
+	github.com/gookit/color v1.3.7
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/json-iterator/go v1.1.10
-	github.com/lestrrat-go/file-rotatelogs v2.3.0+incompatible
-	github.com/lestrrat-go/strftime v1.0.3 // indirect
-	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/mojocn/base64Captcha v1.3.1
-	github.com/oleiade/lane v1.0.1 // indirect
-	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/gomega v1.4.3 // indirect
-	github.com/ouqiang/timewheel v1.0.1
-	github.com/pelletier/go-toml v1.6.0 // indirect
-	github.com/pkg/errors v0.9.1
-	github.com/qiniu/api.v7/v7 v7.4.1
-	github.com/rfyiamcool/go-timewheel v0.0.0-20200718022720-a3935e8c9b67
+	github.com/onsi/ginkgo v1.15.0 // indirect
+	github.com/onsi/gomega v1.10.5 // indirect
+	github.com/qiniu/api.v7/v7 v7.8.2
 	github.com/satori/go.uuid v1.2.0
 	github.com/segmentio/kafka-go v0.4.9
-	github.com/shirou/gopsutil v2.20.8+incompatible
-	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/cast v1.3.1 // indirect
-	github.com/spf13/cobra v1.1.1
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.7.0
-	github.com/swaggo/gin-swagger v1.2.0
-	github.com/swaggo/swag v1.6.7
-	github.com/tebeka/strftime v0.1.3 // indirect
-	github.com/unrolled/secure v1.0.7
-	github.com/zzh20/timewheel v0.0.0-20191104134502-0412e18c7663
-	go.uber.org/zap v1.10.0
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
-	golang.org/x/sys v0.0.0-20200610111108-226ff32320da // indirect
-	golang.org/x/tools v0.0.0-20200324003944-a576cf524670 // indirect
-	google.golang.org/protobuf v1.24.0 // indirect
-	gopkg.in/ini.v1 v1.55.0 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
-	gorm.io/driver/mysql v0.3.0
-	gorm.io/gorm v1.20.9
+	github.com/shirou/gopsutil v3.21.1+incompatible
+	github.com/spf13/cobra v1.1.3
+	github.com/spf13/viper v1.7.1
+	github.com/swaggo/gin-swagger v1.3.0
+	github.com/swaggo/swag v1.7.0
+	github.com/unrolled/secure v1.0.8
+	go.uber.org/zap v1.16.0
+	gorm.io/driver/mysql v1.0.4
+	gorm.io/gorm v1.20.12
 )
-
-replace github.com/casbin/gorm-adapter/v3 => github.com/casbin/gorm-adapter/v3 v3.0.2

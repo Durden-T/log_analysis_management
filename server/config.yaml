@@ -88,3 +88,6 @@ kafka:
   read_max_bytes: 10e6 # 10mb
   commit_interval: 5s  # flushes commits to Kafka every 5 second
 
+# excel configuration
+excel:
+  dir: './resource/excel/'
