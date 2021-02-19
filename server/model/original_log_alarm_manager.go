@@ -40,7 +40,7 @@ func NewOriginalLogAlarmManager(app string, reader *kafka.Reader) (*OriginalLogA
 		reader: reader,
 		cancel: make(chan struct{}),
 	}
-	manager.cancelUpdateAlarms = global.TIMEWHEEL.ScheduleFunc(5 * time.Second, manager.updateAlarms)
+	manager.cancelUpdateAlarms = global.TIMEWHEEL.ScheduleFunc(5*time.Second, manager.updateAlarms)
 	return manager, nil
 }
 

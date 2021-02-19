@@ -135,7 +135,6 @@ func SetDataAuthority(auth model.SysAuthority) error {
 	return err
 }
 
-
 //@author: [Durden-T](https://github.com/Durden-T)
 //@function: SetAppAuthority
 //@description: 设置角色App权限

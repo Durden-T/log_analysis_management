@@ -10,17 +10,17 @@ import (
 )
 
 type TemplateAlarmManager struct {
-	app    string
+	app string
 	timer.TimeNoder
 }
 
 const (
-	alarmCheckInterval = time.Second
+	alarmCheckInterval       = time.Second
 	TemplateAlarmTableSuffix = "_template_alarms"
 )
 
 func NewTemplateAlarmManager(app string) (*TemplateAlarmManager, error) {
-	tableName :=  GetTemplateAlarmTableName(app)
+	tableName := GetTemplateAlarmTableName(app)
 	err := global.GVA_DB.Table(tableName).AutoMigrate(&TemplateAlarmStrategy{})
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func NewTemplateAlarmManager(app string) (*TemplateAlarmManager, error) {
 	return alarmManager, nil
 }
 
-func GetTemplateAlarmTableName(app string) string{
+func GetTemplateAlarmTableName(app string) string {
 	return app + TemplateAlarmTableSuffix
 }
 
@@ -40,13 +40,12 @@ func (a *TemplateAlarmManager) checkAlarm() {
 	var templateAlarms []*TemplateAlarmStrategy
 
 	db := global.GVA_DB
-	if err := db.Table(GetTemplateAlarmTableName(a.app)).Find(&templateAlarms, "app = ?", a.app).Error;
-	err != nil {
+	if err := db.Table(GetTemplateAlarmTableName(a.app)).Find(&templateAlarms, "app = ?", a.app).Error; err != nil {
 		global.GVA_LOG.Error("check template alarm failed", zap.String("app", a.app), zap.Error(err))
 		return
 	}
 
-	if len(templateAlarms) == 0{
+	if len(templateAlarms) == 0 {
 		return
 	}
 	templateIds := make([]uint32, len(templateAlarms))
@@ -54,8 +53,7 @@ func (a *TemplateAlarmManager) checkAlarm() {
 		templateIds = append(templateIds, alarm.TemplateId)
 	}
 	var templates []*LogTemplate
-	if err := db.Table(GetTemplateTableName(a.app)).Find(&templates, "cluster_id in ?", templateIds).Error;
-	err != nil {
+	if err := db.Table(GetTemplateTableName(a.app)).Find(&templates, "cluster_id in ?", templateIds).Error; err != nil {
 		global.GVA_LOG.Error("check template alarm failed", zap.String("app", a.app), zap.Error(err))
 		return
 	}
@@ -71,13 +69,13 @@ func (a *TemplateAlarmManager) checkAlarm() {
 
 		var (
 			threshold int64
-			increase bool
+			increase  bool
 		)
 		if alarm.UseRatio {
-			threshold = int64((1+alarm.Ratio)*float64(alarm.StartCount))
+			threshold = int64((1 + alarm.Ratio) * float64(alarm.StartCount))
 			increase = alarm.Ratio > 0
-		}else {
-			threshold = alarm.StartCount+alarm.Count
+		} else {
+			threshold = alarm.StartCount + alarm.Count
 			increase = alarm.Count > 0
 		}
 

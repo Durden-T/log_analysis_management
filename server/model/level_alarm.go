@@ -14,14 +14,14 @@ type LevelAlarmStrategy struct {
 	Name     string   `json:"name" form:"name" gorm:"column:name;comment:;unique"`
 	Email    string   `json:"email" form:"email" gorm:"column:email;comment:"`
 	App      string   `json:"app" form:"app" gorm:"column:app;comment:;<-:create"`
-	Level string      `json:"level" form:"level" gorm:"column:level;comment:"`
+	Level    string   `json:"level" form:"level" gorm:"column:level;comment:"`
 
 	StartTime  time.Time `json:"-" gorm:"-"`
-	StartCount int64 `json:"-" gorm:"-"`
+	StartCount int64     `json:"-" gorm:"-"`
 }
 
 const LevelAlarmTableSuffix = "_level_alarms"
 
-func GetLevelAlarmTableName(app string) string{
+func GetLevelAlarmTableName(app string) string {
 	return app + LevelAlarmTableSuffix
 }

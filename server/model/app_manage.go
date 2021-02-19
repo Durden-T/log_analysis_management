@@ -8,11 +8,11 @@ import (
 
 type App struct {
 	global.GVA_MODEL
-	Name             string `json:"name" form:"name" gorm:"comment:app名;unique;'<-:create"`
-	KafkaInputTopic  string `json:"kafkaInputTopic" form:"kafkaInputTopic" gorm:"comment:kafka输入topic"`
-	KafkaOutputTopic string `json:"kafkaOutputTopic" form:"kafkaOutputTopic" gorm:"comment:kafka输出topic"`
-	EnableAlarm bool `json:"enableAlarm" form:"enableAlarm" gorm:"comment:启用报警"`
-	LogParser *logParser `json:"-" gorm:"-"`
+	Name             string     `json:"name" form:"name" gorm:"comment:app名;unique;'<-:create"`
+	KafkaInputTopic  string     `json:"kafkaInputTopic" form:"kafkaInputTopic" gorm:"comment:kafka输入topic"`
+	KafkaOutputTopic string     `json:"kafkaOutputTopic" form:"kafkaOutputTopic" gorm:"comment:kafka输出topic"`
+	EnableAlarm      bool       `json:"enableAlarm" form:"enableAlarm" gorm:"comment:启用报警"`
+	LogParser        *logParser `json:"-" gorm:"-"`
 
 	*OriginalLogAlarmManager
 	*TemplateAlarmManager `json:"-" gorm:"-"`
@@ -36,7 +36,7 @@ func (a *App) Init() error {
 	return nil
 }
 
-func (a *App) InitAlarm() error{
+func (a *App) InitAlarm() error {
 	if err := a.initTemplateAlarmManager(); err != nil {
 		return err
 	}
@@ -82,13 +82,13 @@ func (a *App) initLogParser() error {
 	}
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Topic:   a.KafkaOutputTopic,
-		Brokers: cfg.Hosts,
-		GroupID: GroupID,
+		Topic:          a.KafkaOutputTopic,
+		Brokers:        cfg.Hosts,
+		GroupID:        GroupID,
 		MinBytes:       cfg.ReadMinBytes,
 		MaxBytes:       cfg.ReadMaxBytes,
 		CommitInterval: cfg.CommitInterval,
-		StartOffset: kafka.LastOffset,
+		StartOffset:    kafka.LastOffset,
 	})
 
 	a.LogParser = NewLogParser(a.Name, writer, reader)
@@ -108,13 +108,13 @@ func (a *App) initOriginalLogAlarmManager() (err error) {
 	cfg := global.GVA_CONFIG.Kafka
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Topic:   a.KafkaOutputTopic,
-		Brokers: cfg.Hosts,
-		GroupID: GroupID,
+		Topic:          a.KafkaOutputTopic,
+		Brokers:        cfg.Hosts,
+		GroupID:        GroupID,
 		MinBytes:       cfg.ReadMinBytes,
 		MaxBytes:       cfg.ReadMaxBytes,
 		CommitInterval: cfg.CommitInterval,
-		StartOffset: kafka.LastOffset,
+		StartOffset:    kafka.LastOffset,
 	})
 
 	a.OriginalLogAlarmManager, err = NewOriginalLogAlarmManager(a.Name, reader)

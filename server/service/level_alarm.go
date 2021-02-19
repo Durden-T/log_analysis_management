@@ -44,7 +44,7 @@ func DeleteLevelAlarmStrategy(s model.LevelAlarmStrategy) (err error) {
 //@return: err error
 
 func DeleteLevelAlarmStrategyByIds(ids request.IdsReq, app string) (err error) {
-	err = global.GVA_DB.Table(model.GetLevelAlarmTableName(app)).Unscoped().Delete(&[]model.LevelAlarmStrategy{},"id in ?",ids.Ids).Error
+	err = global.GVA_DB.Table(model.GetLevelAlarmTableName(app)).Unscoped().Delete(&[]model.LevelAlarmStrategy{}, "id in ?", ids.Ids).Error
 	return err
 }
 
@@ -80,16 +80,16 @@ func GetLevelAlarmStrategy(id uint, app string) (err error, s model.LevelAlarmSt
 func GetLevelAlarmStrategyInfoList(info request.LevelAlarmStrategySearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-    // 创建db
+	// 创建db
 	db := global.GVA_DB.Table(model.GetLevelAlarmTableName(info.App))
-    var ss []model.LevelAlarmStrategy
-    // 如果有条件搜索 下方会自动创建搜索语句
-    if info.Name != "" {
-        db = db.Where("`name` LIKE ?","%"+ info.Name+"%")
-    }
-    if info.Email != "" {
-        db = db.Where("`email` LIKE ?","%"+ info.Email+"%")
-    }
+	var ss []model.LevelAlarmStrategy
+	// 如果有条件搜索 下方会自动创建搜索语句
+	if info.Name != "" {
+		db = db.Where("`name` LIKE ?", "%"+info.Name+"%")
+	}
+	if info.Email != "" {
+		db = db.Where("`email` LIKE ?", "%"+info.Email+"%")
+	}
 	err = db.Count(&total).Error
 	err = db.Limit(limit).Offset(offset).Find(&ss).Error
 	return err, ss, total

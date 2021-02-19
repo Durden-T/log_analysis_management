@@ -19,7 +19,7 @@ func main() {
 	global.GVA_LOG = core.Zap()           // 初始化zap日志库
 	global.GVA_DB = initialize.Gorm()     // gorm连接数据库
 	initialize.MysqlTables(global.GVA_DB) // 初始化表
-	global.TIMEWHEEL = timer.NewTimer() // 初始化时间轮
+	global.TIMEWHEEL = timer.NewTimer()   // 初始化时间轮
 	go global.TIMEWHEEL.Run()
 	defer global.TIMEWHEEL.Stop()
 

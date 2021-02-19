@@ -57,7 +57,6 @@ func DeleteApp(e *model.App) (err error) {
 	return
 }
 
-
 //@author: [Durden-T](https://github.com/Durden-T)
 //@function: GetAppInfoList
 //@description: 分页获取app列表
@@ -101,7 +100,6 @@ func CheckAppPermission(sysUserAuthorityID, appName string) (pass bool, err erro
 	return
 }
 
-
 //@author: [Durden-T](https://github.com/Durden-T)
 //@function: GetAllApps
 //@description: 获取所有app信息
@@ -112,7 +110,6 @@ func GetAllApps() (appList []*model.App, err error) {
 	err = global.GVA_DB.Model(&model.App{}).Find(&appList).Error
 	return
 }
-
 
 //@author: [Durden-T](https://github.com/Durden-T)
 //@function: UpdateApp

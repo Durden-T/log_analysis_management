@@ -47,7 +47,7 @@ func DeleteRegexAlarmStrategy(s model.RegexAlarmStrategy) (err error) {
 //@return: err error
 
 func DeleteRegexAlarmStrategyByIds(ids request.IdsReq, app string) (err error) {
-	err = global.GVA_DB.Table(model.GetRegexAlarmTableName(app)).Unscoped().Delete(&[]model.RegexAlarmStrategy{},"id in ?",ids.Ids).Error
+	err = global.GVA_DB.Table(model.GetRegexAlarmTableName(app)).Unscoped().Delete(&[]model.RegexAlarmStrategy{}, "id in ?", ids.Ids).Error
 	return err
 }
 
@@ -86,18 +86,18 @@ func GetRegexAlarmStrategy(id uint, app string) (err error, s model.RegexAlarmSt
 func GetRegexAlarmStrategyInfoList(info request.RegexAlarmStrategySearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-    // 创建db
+	// 创建db
 	db := global.GVA_DB.Table(model.GetRegexAlarmTableName(info.App))
-    var ss []model.RegexAlarmStrategy
-    // 如果有条件搜索 下方会自动创建搜索语句
-    if info.Name != "" {
-        db = db.Where("`name` LIKE ?","%"+ info.Name+"%")
-    }
-    if info.Email != "" {
-		db = db.Where("`email` LIKE ?","%"+ info.Email+"%")
-    }
-    if info.Regex != "" {
-		db = db.Where("`regex` LIKE ?","%"+ info.Regex+"%")
+	var ss []model.RegexAlarmStrategy
+	// 如果有条件搜索 下方会自动创建搜索语句
+	if info.Name != "" {
+		db = db.Where("`name` LIKE ?", "%"+info.Name+"%")
+	}
+	if info.Email != "" {
+		db = db.Where("`email` LIKE ?", "%"+info.Email+"%")
+	}
+	if info.Regex != "" {
+		db = db.Where("`regex` LIKE ?", "%"+info.Regex+"%")
 
 	}
 	err = db.Count(&total).Error

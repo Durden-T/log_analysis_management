@@ -28,7 +28,7 @@ func CreateLogTemplate(l model.LogTemplate) (err error) {
 	if !app.EnableAlarm {
 		return errors.New("未启用报警")
 	}
- 	buf := bytes.NewBuffer([]byte{})
+	buf := bytes.NewBuffer([]byte{})
 	enc := jsoniter.NewEncoder(buf)
 	enc.SetEscapeHTML(false)
 
@@ -57,7 +57,7 @@ func DeleteLogTemplate(l model.LogTemplate) (err error) {
 //@return: err error
 
 func DeleteLogTemplateByIds(ids request.IdsReq, app string) (err error) {
-	err = global.GVA_DB.Table(model.GetTemplateTableName(app)).Delete(&[]model.LogTemplate{},"id in ?",ids.Ids).Error
+	err = global.GVA_DB.Table(model.GetTemplateTableName(app)).Delete(&[]model.LogTemplate{}, "id in ?", ids.Ids).Error
 	return err
 }
 
@@ -70,22 +70,22 @@ func DeleteLogTemplateByIds(ids request.IdsReq, app string) (err error) {
 func GetLogTemplateInfoList(info request.LogTemplateSearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-    // 创建db
+	// 创建db
 	db := global.GVA_DB.Table(model.GetTemplateTableName(info.App))
-    var ls []model.LogTemplate
-    // 如果有条件搜索 下方会自动创建搜索语句
-    if info.ClusterId != 0 {
-        db = db.Where("`cluster_id` = ?",info.ClusterId)
-    }
-    if info.Tokens != "" {
-        db = db.Where("`tokens` LIKE ?","%"+ info.Tokens+"%")
-    }
-    if info.Level != "" {
-        db = db.Where("`level` = ?",info.Level)
-    }
-    if info.Content != "" {
-        db = db.Where("`content` LIKE ?","%"+ info.Content+"%")
-    }
+	var ls []model.LogTemplate
+	// 如果有条件搜索 下方会自动创建搜索语句
+	if info.ClusterId != 0 {
+		db = db.Where("`cluster_id` = ?", info.ClusterId)
+	}
+	if info.Tokens != "" {
+		db = db.Where("`tokens` LIKE ?", "%"+info.Tokens+"%")
+	}
+	if info.Level != "" {
+		db = db.Where("`level` = ?", info.Level)
+	}
+	if info.Content != "" {
+		db = db.Where("`content` LIKE ?", "%"+info.Content+"%")
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return
@@ -94,4 +94,3 @@ func GetLogTemplateInfoList(info request.LogTemplateSearch) (err error, list int
 	list = ls
 	return
 }
-

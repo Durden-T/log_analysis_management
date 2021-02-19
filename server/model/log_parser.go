@@ -15,22 +15,22 @@ import (
 
 type templateBucket struct {
 	bucketSize int
-	buckets []map[uint32]*LogTemplate
-	result map[uint32]*LogTemplate
-	lock sync.RWMutex
+	buckets    []map[uint32]*LogTemplate
+	result     map[uint32]*LogTemplate
+	lock       sync.RWMutex
 
-	flushInterval time.Duration
+	flushInterval                time.Duration
 	flushEliminationBucketsCount int
-	done chan<- struct{}
+	done                         chan<- struct{}
 }
 
-func newTemplateBucket(bucketSize, flushEliminationBucketsCount int, flushInterval time.Duration) *templateBucket{
+func newTemplateBucket(bucketSize, flushEliminationBucketsCount int, flushInterval time.Duration) *templateBucket {
 	bucket := &templateBucket{
-		bucketSize: bucketSize,
-		flushInterval: flushInterval,
+		bucketSize:                   bucketSize,
+		flushInterval:                flushInterval,
 		flushEliminationBucketsCount: flushEliminationBucketsCount,
-		buckets: make([]map[uint32]*LogTemplate, bucketSize),
-		result: make(map[uint32]*LogTemplate),
+		buckets:                      make([]map[uint32]*LogTemplate, bucketSize),
+		result:                       make(map[uint32]*LogTemplate),
 	}
 
 	for i := 0; i < bucket.bucketSize; i++ {
@@ -42,7 +42,7 @@ func newTemplateBucket(bucketSize, flushEliminationBucketsCount int, flushInterv
 	return bucket
 }
 
-func (b *templateBucket) flush() error{
+func (b *templateBucket) flush() error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
@@ -55,24 +55,24 @@ func (b *templateBucket) flush() error{
 				if oldTemplate.Size == 0 {
 					delete(b.result, id)
 				}
-			}else {
+			} else {
 				fmt.Println("here")
 			}
 		}
 	}
 
 	b.buckets = b.buckets[count:]
-	for i:= 0; i < count; i++ {
+	for i := 0; i < count; i++ {
 		b.buckets = append(b.buckets, make(map[uint32]*LogTemplate, 0))
 	}
 	return nil
 }
 
-func(b *templateBucket) Close() {
-	b.done<-struct{}{}
+func (b *templateBucket) Close() {
+	b.done <- struct{}{}
 }
 
-func(b *templateBucket) Put(index int, t *LogTemplate) {
+func (b *templateBucket) Put(index int, t *LogTemplate) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -105,7 +105,7 @@ func (s TemplateSlice) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
-func(b *templateBucket) GetResult() TemplateSlice {
+func (b *templateBucket) GetResult() TemplateSlice {
 	b.lock.Lock()
 	result := make(TemplateSlice, 0)
 	for _, t := range b.result {
@@ -138,11 +138,11 @@ const secondsOfMinute = 60
 
 func NewLogParser(app string, writer *kafka.Writer, reader *kafka.Reader) *logParser {
 	return &logParser{
-		app:    app,
-		reader: reader,
-		writer: writer,
+		app:          app,
+		reader:       reader,
+		writer:       writer,
 		resultBucket: newTemplateBucket(secondsOfMinute, 1, time.Second),
-		cancel: make(chan struct{}),
+		cancel:       make(chan struct{}),
 	}
 }
 

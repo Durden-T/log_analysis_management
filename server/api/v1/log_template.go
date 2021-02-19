@@ -93,7 +93,6 @@ func GetLogTemplateList(c *gin.Context) {
 	}
 }
 
-
 // @Tags LogTemplate
 // @Summary 获取实时的日志模版
 // @Security ApiKeyAuth
@@ -121,7 +120,7 @@ func GetRealtimeResult(c *gin.Context) {
 		response.FailWithMessage("获取失败", c)
 	} else {
 		response.OkWithDetailed(response.PageResult{
-			List:     res,
+			List: res,
 		}, "获取成功", c)
 	}
 }

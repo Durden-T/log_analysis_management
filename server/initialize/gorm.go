@@ -142,7 +142,7 @@ func InitBusiness() {
 		}
 	}
 
-	global.TIMEWHEEL.ScheduleFunc(5*time.Second, func(){
+	global.TIMEWHEEL.ScheduleFunc(5*time.Second, func() {
 		apps, _ := service.GetAllApps()
 		for _, app := range apps {
 			if oldAppInterface, ok := global.APP_MANAGER.Load(app.Name); ok {
@@ -152,7 +152,7 @@ func InitBusiness() {
 			}
 
 			if err := app.Init(); err != nil {
-				global.GVA_LOG.Error("init app failed",zap.String("app", app.Name), zap.Error(err))
+				global.GVA_LOG.Error("init app failed", zap.String("app", app.Name), zap.Error(err))
 			}
 		}
 	})

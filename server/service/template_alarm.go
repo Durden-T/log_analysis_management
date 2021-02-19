@@ -23,7 +23,7 @@ func CreateTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
 	if err = global.GVA_DB.Table(model.GetTemplateTableName(s.App)).Where("cluster_id = ?", s.TemplateId).Take(&template).Error; err != nil {
 		return
 	}
-	s.StartCount =template.Size
+	s.StartCount = template.Size
 	s.StartTime = now
 
 	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(s.App)).Create(&s).Error
@@ -48,7 +48,7 @@ func DeleteTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
 //@return: err error
 
 func DeleteTemplateAlarmStrategyByIds(ids request.IdsReq, app string) (err error) {
-	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(app)).Delete(&[]model.TemplateAlarmStrategy{},"id in ?",ids.Ids).Error
+	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(app)).Delete(&[]model.TemplateAlarmStrategy{}, "id in ?", ids.Ids).Error
 	return err
 }
 
@@ -83,21 +83,20 @@ func GetTemplateAlarmStrategy(id uint) (err error, s model.TemplateAlarmStrategy
 func GetTemplateAlarmStrategyInfoList(info request.TemplateAlarmStrategySearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-    // 创建db
+	// 创建db
 	db := global.GVA_DB.Table(model.GetTemplateAlarmTableName(info.App))
-    var ss []model.TemplateAlarmStrategy
-    // 如果有条件搜索 下方会自动创建搜索语句
-    if info.Name != "" {
-        db = db.Where("`name` LIKE ?","%"+ info.Name+"%")
-    }
+	var ss []model.TemplateAlarmStrategy
+	// 如果有条件搜索 下方会自动创建搜索语句
+	if info.Name != "" {
+		db = db.Where("`name` LIKE ?", "%"+info.Name+"%")
+	}
 	if info.TemplateId != 0 {
-		db = db.Where("`template_id` = ?",info.TemplateId)
+		db = db.Where("`template_id` = ?", info.TemplateId)
 	}
 	if info.Email != "" {
-		db = db.Where("`email` LIKE ?", "%"+ info.Email+"%")
+		db = db.Where("`email` LIKE ?", "%"+info.Email+"%")
 	}
 	err = db.Count(&total).Error
 	err = db.Limit(limit).Offset(offset).Find(&ss).Error
 	return err, ss, total
 }
-

@@ -2,13 +2,13 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-    "gin-vue-admin/model"
-    "gin-vue-admin/model/request"
-    "gin-vue-admin/model/response"
-    "gin-vue-admin/service"
+	"gin-vue-admin/model"
+	"gin-vue-admin/model/request"
+	"gin-vue-admin/model/response"
+	"gin-vue-admin/service"
 	"gin-vue-admin/utils"
 	"github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"go.uber.org/zap"
 )
 
 // @Tags RegexAlarmStrategy
@@ -28,7 +28,7 @@ func CreateRegexAlarmStrategy(c *gin.Context) {
 	}
 
 	if err := service.CreateRegexAlarmStrategy(s); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Any("err", err))
+		global.GVA_LOG.Error("创建失败!", zap.Any("err", err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -51,7 +51,7 @@ func DeleteRegexAlarmStrategy(c *gin.Context) {
 		return
 	}
 	if err := service.DeleteRegexAlarmStrategy(s); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Any("err", err))
+		global.GVA_LOG.Error("删除失败!", zap.Any("err", err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -68,10 +68,10 @@ func DeleteRegexAlarmStrategy(c *gin.Context) {
 // @Router /regexAlarm/deleteRegexAlarmStrategyByIds [delete]
 func DeleteRegexAlarmStrategyByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    _ = c.ShouldBindJSON(&IDS)
+	_ = c.ShouldBindJSON(&IDS)
 	app := c.GetHeader("app")
 	if err := service.DeleteRegexAlarmStrategyByIds(IDS, app); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Any("err", err))
+		global.GVA_LOG.Error("批量删除失败!", zap.Any("err", err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -94,7 +94,7 @@ func UpdateRegexAlarmStrategy(c *gin.Context) {
 		return
 	}
 	if err := service.UpdateRegexAlarmStrategy(s); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Any("err", err))
+		global.GVA_LOG.Error("更新失败!", zap.Any("err", err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -118,7 +118,7 @@ func FindRegexAlarmStrategy(c *gin.Context) {
 	}
 	app := c.GetHeader("app")
 	if err, res := service.GetRegexAlarmStrategy(s.ID, app); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Any("err", err))
+		global.GVA_LOG.Error("查询失败!", zap.Any("err", err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"res": res}, c)
@@ -141,14 +141,14 @@ func GetRegexAlarmStrategyList(c *gin.Context) {
 		return
 	}
 	if err, list, total := service.GetRegexAlarmStrategyInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败", zap.Any("err", err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败", zap.Any("err", err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }
