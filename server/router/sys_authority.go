@@ -15,5 +15,6 @@ func InitAuthorityRouter(Router *gin.RouterGroup) {
 		AuthorityRouter.POST("copyAuthority", v1.CopyAuthority)       // 更新角色
 		AuthorityRouter.POST("getAuthorityList", v1.GetAuthorityList) // 获取角色列表
 		AuthorityRouter.POST("setDataAuthority", v1.SetDataAuthority) // 设置角色资源权限
+		AuthorityRouter.POST("setAppAuthority", v1.SetAppAuthority) // 设置角色资源权限
 	}
 }

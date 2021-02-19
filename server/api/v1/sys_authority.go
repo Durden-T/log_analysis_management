@@ -157,3 +157,26 @@ func SetDataAuthority(c *gin.Context) {
 		response.OkWithMessage("设置成功", c)
 	}
 }
+
+// @Tags Authority
+// @Summary 设置角色App权限
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body model.SysAuthority true "设置角色App权限"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"设置成功"}"
+// @Router /authority/setAppAuthority [post]
+func SetAppAuthority(c *gin.Context) {
+	var auth model.SysAuthority
+	_ = c.ShouldBindJSON(&auth)
+	if err := utils.Verify(auth, utils.AuthorityIdVerify); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := service.SetAppAuthority(auth); err != nil {
+		global.GVA_LOG.Error("设置失败!", zap.Any("err", err))
+		response.FailWithMessage("设置失败"+err.Error(), c)
+	} else {
+		response.OkWithMessage("设置成功", c)
+	}
+}

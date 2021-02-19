@@ -5,7 +5,6 @@ import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
-	"gorm.io/gorm"
 )
 
 //@author: [Durden-T](https://github.com/Durden-T.)
@@ -15,74 +14,70 @@ import (
 //@return: err error
 
 func CreateApp(e *model.App) (err error) {
+	_, ok := global.APP_MANAGER.Load(e.Name)
+	if ok {
+		return errors.New("app exist")
+	}
+
+	if err := e.Init(); err != nil {
+		return err
+	}
+
 	err = global.GVA_DB.Create(e).Error
-	return err
+	if err != nil {
+		return
+	}
+
+	global.APP_MANAGER.Store(e.Name, e)
+	return
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)
-//@function: DeleteFileChunk
+//@function: DeleteApp
 //@description: 删除app
 //@param: e model.App
 //@return: err error
 
 func DeleteApp(e *model.App) (err error) {
+	appInterface, ok := global.APP_MANAGER.Load(e.Name)
+	if !ok {
+		return errors.New("app not exist")
+	}
+	app, ok := appInterface.(*model.App)
+	if !ok {
+		return errors.New("app not exist")
+	}
+
+	app.Stop()
 	err = global.GVA_DB.Delete(e).Error
-	return err
-}
-
-//@author: [Durden-T](https://github.com/Durden-T)
-//@function: UpdateApp
-//@description: 更新app
-//@param: e *model.App
-//@return: err error
-
-func UpdateApp(e *model.App) (err error) {
-	err = global.GVA_DB.Save(e).Error
-	return err
-}
-
-//@author: [Durden-T](https://github.com/Durden-T)
-//@function: GetApp
-//@description: 获取app信息
-//@param: id uint
-//@return: err error, app model.App
-
-func GetApp(id uint) (err error, app *model.App) {
-	err = global.GVA_DB.Where("id = ?", id).Take(app).Error
+	if err != nil {
+		return
+	}
+	global.APP_MANAGER.Delete(e.Name)
 	return
 }
+
 
 //@author: [Durden-T](https://github.com/Durden-T)
 //@function: GetAppInfoList
 //@description: 分页获取app列表
-//@param: sysUserAuthorityID string, info request.PageInfo
-//@return: err error, list interface{}, total int64
+//@param: info request.PageInfo
+//@return: list []model.App, total int64, err error
 
-func GetAppInfoList(sysUserAuthorityID string, info *request.PageInfo) (list interface{}, total int64, err error) {
+func GetAppInfoList(info *request.PageInfo) (list []model.App, total int64, err error) {
 	db := global.GVA_DB.Model(&model.App{})
-	var a model.SysAuthority
-	a.AuthorityId = sysUserAuthorityID
-	err, auth := GetAuthorityInfo(a)
-	if err != nil {
+	err = db.Count(&total).Error
+	if err != nil || total == 0 {
 		return
 	}
 
-	var dataId []string
-	for _, v := range auth.DataAuthorityId {
-		dataId = append(dataId, v.AuthorityId)
-	}
-	var appList []model.App
-	err = db.Where("sys_user_authority_id in ?", dataId).Count(&total).Error
-	if err != nil {
-		return
-	}
 	if info != nil {
 		limit := info.PageSize
 		offset := info.PageSize * (info.Page - 1)
 		db = db.Limit(limit).Offset(offset)
 	}
-	err = db.Preload("SysUser").Where("sys_user_authority_id in ?", dataId).Find(&appList).Error
 
+	err = db.Find(&list).Error
 	return
 }
 
@@ -96,15 +91,57 @@ func CheckAppPermission(sysUserAuthorityID, appName string) (pass bool, err erro
 	if len(sysUserAuthorityID) == 0 || len(appName) == 0 {
 		return false, nil
 	}
-	err = global.GVA_DB.Where(&model.App{
-		SysUserAuthorityID: sysUserAuthorityID,
-		Name:               appName,
-	}).Take(nil).Error
-	if err == nil {
+
+	var dest model.SysAuthority
+	err = global.GVA_DB.Model(&model.SysAuthority{}).Where("authority_id = ?", sysUserAuthorityID).
+		Preload("App", "name = ?", appName).Take(&dest).Error
+	if err == nil && len(dest.App) > 0 {
 		pass = true
-	} else if errors.Is(err, gorm.ErrRecordNotFound) {
-		pass = false
-		err = nil
 	}
 	return
+}
+
+
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: GetAllApps
+//@description: 获取所有app信息
+//@param:
+//@return: appList []model.App, err error
+
+func GetAllApps() (appList []*model.App, err error) {
+	err = global.GVA_DB.Model(&model.App{}).Find(&appList).Error
+	return
+}
+
+
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: UpdateApp
+//@description: 更新app, 是否启用报警
+//@param: app *model.App
+//@return: appList []model.App, err error
+
+func UpdateApp(app *model.App) error {
+	appInterface, ok := global.APP_MANAGER.Load(app.Name)
+	if !ok {
+		return errors.New("app not exist")
+	}
+	oldApp, ok := appInterface.(*model.App)
+	if !ok {
+		return errors.New("app not exist")
+	}
+
+	if app.EnableAlarm == oldApp.EnableAlarm {
+		return nil
+	}
+
+	if app.EnableAlarm {
+		if err := oldApp.InitAlarm(); err != nil {
+			return err
+		}
+	} else {
+		oldApp.DisableAlarm()
+	}
+
+	return global.GVA_DB.Model(&model.App{}).Where("name = ?", app.Name).
+		Update("enable_alarm", app.EnableAlarm).Error
 }

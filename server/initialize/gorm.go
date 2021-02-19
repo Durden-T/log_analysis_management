@@ -4,11 +4,13 @@ import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/initialize/internal"
 	"gin-vue-admin/model"
+	"gin-vue-admin/service"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"os"
+	"time"
 )
 
 //@author: SliverHorn
@@ -54,11 +56,13 @@ func MysqlTables(db *gorm.DB) {
 		model.WorkflowEndPoint{},
 		model.WorkflowMove{},
 		model.ExaWfLeave{},
+		model.App{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Any("err", err))
 		os.Exit(0)
 	}
+
 	global.GVA_LOG.Info("register table success")
 }
 
@@ -118,4 +122,38 @@ func gormConfig(mod bool) *gorm.Config {
 		config.Logger = internal.Default.LogMode(logger.Silent)
 	}
 	return config
+}
+
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: InitBusiness
+//@description: 初始化业务
+//@param:
+//@return:
+
+func InitBusiness() {
+	apps, err := service.GetAllApps()
+	if err != nil {
+		global.GVA_LOG.Panic("get apps failed", zap.Any("err", err))
+	}
+
+	for _, app := range apps {
+		if err := app.Init(); err != nil {
+			global.GVA_LOG.Warn("init app failed", zap.String("app", app.Name), zap.Any("err", err))
+		}
+	}
+
+	global.TIMEWHEEL.ScheduleFunc(5*time.Second, func(){
+		apps, _ := service.GetAllApps()
+		for _, app := range apps {
+			if oldAppInterface, ok := global.APP_MANAGER.Load(app.Name); ok {
+				if _, ok = oldAppInterface.(*model.App); ok {
+					continue
+				}
+			}
+
+			if err := app.Init(); err != nil {
+				global.GVA_LOG.Error("init app failed",zap.String("app", app.Name), zap.Error(err))
+			}
+		}
+	})
 }

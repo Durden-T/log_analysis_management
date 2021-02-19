@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -98,6 +99,24 @@ func Gt(mark string) string {
 	return "gt=" + mark
 }
 
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: EmailLegal
+//@description: email合法
+//@return: string
+
+func EmailLegal() string {
+	return "emailLegal"
+}
+
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: checkEmailLegal
+//@description: 校验email是否合法
+//@oaram: email string
+//@return: bool
+func checkEmailLegal(email string) bool {
+	return regexp.MustCompile(`^[\w\.]+@\w+\.[a-z]{2,3}(\.[a-z]{2,3})?$`).MatchString(email)
+}
+
 //
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: Verify
@@ -120,11 +139,14 @@ func Verify(st interface{}, roleMap Rules) (err error) {
 
 	kd := val.Kind() // 获取到st对应的类别
 	if kd == reflect.Ptr {
+		typ = typ.Elem()
 		val = val.Elem()
-	} else if kd != reflect.Struct {
-		return errors.New("expect struct")
+		kd = val.Kind()
 	}
 
+	if kd != reflect.Struct {
+		return errors.New("expect struct")
+	}
 	num := val.NumField()
 	// 遍历结构体的所有字段
 	for i := 0; i < num; i++ {
@@ -140,6 +162,10 @@ func Verify(st interface{}, roleMap Rules) (err error) {
 				case compareMap[strings.Split(v, "=")[0]]:
 					if !compareVerify(val, v) {
 						return errors.New(tagVal.Name + "长度或值不在合法范围," + v)
+					}
+				case v == "emailLegal":
+					if !checkEmailLegal(val.String()) {
+						return errors.New(tagVal.Name + "值不合法")
 					}
 				}
 			}

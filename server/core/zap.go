@@ -36,7 +36,6 @@ func Zap() (logger *zap.Logger) {
 	default:
 		level = zap.InfoLevel
 	}
-
 	if level == zap.DebugLevel || level == zap.ErrorLevel {
 		logger = zap.New(getEncoderCore(), zap.AddStacktrace(level))
 	} else {

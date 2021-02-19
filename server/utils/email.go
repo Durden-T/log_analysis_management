@@ -19,7 +19,7 @@ import (
 
 func Email(subject string, body string) error {
 	to := strings.Split(global.GVA_CONFIG.Email.To, ",")
-	return send(to, subject, body)
+	return Send(to, subject, body)
 }
 
 //@author: [SliverHorn](https://github.com/SliverHorn)
@@ -33,7 +33,7 @@ func ErrorToEmail(subject string, body string) error {
 	if to[len(to)-1] == "" { // 判断切片的最后一个元素是否为空,为空则移除
 		to = to[:len(to)-1]
 	}
-	return send(to, subject, body)
+	return Send(to, subject, body)
 }
 
 //@author: [maplepie](https://github.com/maplepie)
@@ -44,16 +44,16 @@ func ErrorToEmail(subject string, body string) error {
 
 func EmailTest(subject string, body string) error {
 	to := []string{global.GVA_CONFIG.Email.From}
-	return send(to, subject, body)
+	return Send(to, subject, body)
 }
 
 //@author: [maplepie](https://github.com/maplepie)
-//@function: send
+//@function: Send
 //@description: Email发送方法
 //@param: subject string, body string
 //@return: error
 
-func send(to []string, subject string, body string) error {
+func Send(to []string, subject string, body string) error {
 	from := global.GVA_CONFIG.Email.From
 	nickname := global.GVA_CONFIG.Email.Nickname
 	secret := global.GVA_CONFIG.Email.Secret

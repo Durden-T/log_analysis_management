@@ -28,10 +28,10 @@ redis:
 email:
   to: 'xxx@qq.com'
   port: 465
-  from: 'xxx@163.com'
-  host: 'smtp.163.com'
+  from: '1251424057@qq.com'
+  host: 'smtp.qq.com'
   is-ssl: true
-  secret: 'xxx'
+  secret: 'omibrjrrijvmjdjb'
   nickname: 'test'
 
 # casbin configuration
@@ -77,3 +77,14 @@ qiniu:
   access-key: '25j8dYBZ2wuiy0yhwShytjZDTX662b8xiFguwxzZ'
   secret-key: 'pgdbqEsf7ooZh7W3xokP833h3dZ_VecFXPDeG5JY'
   use-cdn-domains: false
+
+
+kafka:
+  hosts:
+    - 192.168.1.105:9092
+  input_topic_suffix: _log_input
+  output_topic_suffix: _log_output
+  read_min_bytes: 10e3 # 10kb
+  read_max_bytes: 10e6 # 10mb
+  commit_interval: 5s  # flushes commits to Kafka every 5 second
+

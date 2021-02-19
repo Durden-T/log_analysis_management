@@ -15,5 +15,8 @@ var (
 	OldAuthorityVerify     = Rules{"OldAuthorityId": {NotEmpty()}}
 	ChangePasswordVerify   = Rules{"Username": {NotEmpty()}, "Password": {NotEmpty()}, "NewPassword": {NotEmpty()}}
 	SetUserAuthorityVerify = Rules{"UUID": {NotEmpty()}, "AuthorityId": {NotEmpty()}}
-	AppVerify = Rules{"Name": {NotEmpty()}, "KafkaIntputTopic": {NotEmpty()}, "KafkaOutputTopic": {NotEmpty()}}
+	AppVerify              = Rules{"Name": {NotEmpty()}, "KafkaInputTopic": {NotEmpty()}, "KafkaOutputTopic": {NotEmpty()}}
+	TemplateAlarmVerify    = Rules{"Interval": {NotEmpty()}, "Name": {NotEmpty()}, "TemplateId": {NotEmpty(), Ge("0")}, "App": {NotEmpty()}, "Email": {EmailLegal()}}
+	LevelAlarmVerify    = Rules{"Interval": {NotEmpty()}, "Name": {NotEmpty()}, "App": {NotEmpty()}, "Level": {NotEmpty()}, "Email": {EmailLegal()}}
+	RegexAlarmVerify = Rules{"Interval": {NotEmpty()}, "Name": {NotEmpty()}, "App": {NotEmpty()}, "Regex": {NotEmpty()}, "Email": {EmailLegal()}}
 )

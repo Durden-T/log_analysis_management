@@ -80,6 +80,9 @@
         <el-tab-pane label="资源权限">
           <Datas :authority="tableData" :row="activeRow" ref="datas" />
         </el-tab-pane>
+        <el-tab-pane label="app权限">
+          <Apps :row="activeRow" ref="apps" />
+        </el-tab-pane>
       </el-tabs>
     </el-drawer>
   </div>
@@ -99,6 +102,7 @@ import {
 import Menus from "@/view/superAdmin/authority/components/menus";
 import Apis from "@/view/superAdmin/authority/components/apis";
 import Datas from "@/view/superAdmin/authority/components/datas";
+import Apps from "@/view/superAdmin/authority/components/apps";
 
 import infoList from "@/mixins/infoList";
 export default {
@@ -150,11 +154,12 @@ export default {
   components: {
     Menus,
     Apis,
-    Datas
+    Datas,
+    Apps
   },
   methods: {
     autoEnter(activeName, oldActiveName) {
-      const paneArr = ["menus", "apis", "datas"];
+      const paneArr = ["menus", "apis", "datas", "apps"];
       if (oldActiveName) {
         if (this.$refs[paneArr[oldActiveName]].needConfirm) {
           this.$refs[paneArr[oldActiveName]].enterAndNext();

@@ -72,6 +72,21 @@ export const setDataAuthority = (data) => {
     })
 }
 
+// @Summary 设置角色App权限
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body sysModel.SysAuthority true "设置角色App权限"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"设置成功"}"
+// @Router /authority/setAppAuthority [post]
+export const setAppAuthority = (data) => {
+    return service({
+        url: "/authority/setAppAuthority",
+        method: 'post',
+        data
+    })
+}
+
 // @Summary 修改角色
 // @Security ApiKeyAuth
 // @accept application/json

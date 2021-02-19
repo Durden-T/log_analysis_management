@@ -53,10 +53,13 @@ func Routers() *gin.Engine {
 		router.InitAppRouter(PrivateGroup)
 	}
 
-	logMenageGroup := Router.Group("")
-	logMenageGroup.Use(middleware.JWTAuth()).Use(middleware.CasbinHandler()).Use(middleware.AppHandler())
+	logTemplateGroup := Router.Group("")
+	logTemplateGroup.Use(middleware.JWTAuth()).Use(middleware.CasbinHandler()).Use(middleware.AppHandler())
 	{
-
+		router.InitLogTemplateRouter(logTemplateGroup)
+		router.InitTemplateAlarmStrategyRouter(logTemplateGroup)
+		router.InitLevelAlarmStrategyRouter(logTemplateGroup)
+		router.InitRegexAlarmStrategyRouter(logTemplateGroup)
 	}
 	global.GVA_LOG.Info("router register success")
 	return Router

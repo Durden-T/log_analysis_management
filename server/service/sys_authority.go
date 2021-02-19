@@ -102,7 +102,7 @@ func GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, t
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB
 	var authority []model.SysAuthority
-	err = db.Limit(limit).Offset(offset).Preload("DataAuthorityId").Where("parent_id = 0").Find(&authority).Error
+	err = db.Limit(limit).Offset(offset).Preload("DataAuthorityId").Preload("App").Where("parent_id = 0").Find(&authority).Error
 	if len(authority) > 0 {
 		for k := range authority {
 			err = findChildrenAuthority(&authority[k])
@@ -132,6 +132,20 @@ func SetDataAuthority(auth model.SysAuthority) error {
 	var s model.SysAuthority
 	global.GVA_DB.Preload("DataAuthorityId").First(&s, "authority_id = ?", auth.AuthorityId)
 	err := global.GVA_DB.Model(&s).Association("DataAuthorityId").Replace(&auth.DataAuthorityId)
+	return err
+}
+
+
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: SetAppAuthority
+//@description: 设置角色App权限
+//@param: auth model.SysAuthority
+//@return:error
+
+func SetAppAuthority(auth model.SysAuthority) error {
+	var s model.SysAuthority
+	global.GVA_DB.Preload("App").First(&s, "authority_id = ?", auth.AuthorityId)
+	err := global.GVA_DB.Model(&s).Association("App").Replace(&auth.App)
 	return err
 }
 
