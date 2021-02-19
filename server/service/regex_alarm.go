@@ -5,6 +5,7 @@ import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
+	"gin-vue-admin/utils"
 	"regexp"
 	"time"
 )
@@ -26,6 +27,9 @@ func CreateRegexAlarmStrategy(s model.RegexAlarmStrategy) (err error) {
 	s.StartTime = time.Now()
 	s.StartCount = 0
 	err = global.GVA_DB.Table(model.GetRegexAlarmTableName(s.App)).Create(&s).Error
+	if err != nil {
+		utils.Send([]string{s.App}, "测试报警", "")
+	}
 	return
 }
 

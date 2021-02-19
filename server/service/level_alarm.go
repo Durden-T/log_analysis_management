@@ -5,6 +5,7 @@ import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
+	"gin-vue-admin/utils"
 	"strings"
 	"time"
 )
@@ -23,6 +24,9 @@ func CreateLevelAlarmStrategy(s model.LevelAlarmStrategy) (err error) {
 	s.StartCount = 0
 	s.Level = strings.ToLower(s.Level)
 	err = global.GVA_DB.Table(model.GetLevelAlarmTableName(s.App)).Create(&s).Error
+	if err != nil {
+		utils.Send([]string{s.App}, "测试报警", "")
+	}
 	return
 }
 

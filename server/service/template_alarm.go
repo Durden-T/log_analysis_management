@@ -5,6 +5,7 @@ import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
+	"gin-vue-admin/utils"
 	"time"
 )
 
@@ -27,6 +28,9 @@ func CreateTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
 	s.StartTime = now
 
 	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(s.App)).Create(&s).Error
+	if err != nil {
+		utils.Send([]string{s.App}, "测试报警", "")
+	}
 	return
 }
 
