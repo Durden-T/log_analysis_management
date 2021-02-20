@@ -34,6 +34,11 @@ export default {
                 this.total = table.data.total
                 this.page = table.data.page
                 this.pageSize = table.data.pageSize
+
+                this.$message({
+                    type: "success",
+                    message: "成功",
+                  });
             }
         }
     }
