@@ -20,14 +20,27 @@ func CreateLevelAlarmStrategy(s model.LevelAlarmStrategy) (err error) {
 	if _, found := global.APP_MANAGER.Load(s.App); !found {
 		return errors.New("app doesn't exist")
 	}
-	s.StartTime = time.Now()
-	s.StartCount = 0
 	s.Level = strings.ToLower(s.Level)
+
+	if checkLevelExist(s.App, s.Level) {
+		return errors.New("level existed")
+	}
+
+	now := time.Now()
+	s.StartTime = now
+	s.StartCount = 0
 	err = global.GVA_DB.Table(model.GetLevelAlarmTableName(s.App)).Create(&s).Error
 	if err != nil {
 		utils.Send([]string{s.App}, "测试报警", "")
 	}
 	return
+}
+
+// 每个level只能对应一个报警
+func checkLevelExist(app, level string) bool {
+	var count int64
+	err := global.GVA_DB.Table(model.GetLevelAlarmTableName(app)).Where("level = ?", level).Count(&count).Error
+	return err != nil || count != 0
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)
@@ -60,8 +73,12 @@ func DeleteLevelAlarmStrategyByIds(ids request.IdsReq, app string) (err error) {
 
 func UpdateLevelAlarmStrategy(s model.LevelAlarmStrategy) (err error) {
 	s.Level = strings.ToLower(s.Level)
-	err = global.GVA_DB.Table(model.GetLevelAlarmTableName(s.App)).Save(&s).Error
-	return err
+	if checkLevelExist(s.App, s.Level) {
+		return errors.New("level existed")
+	}
+
+	return global.GVA_DB.Table(model.GetLevelAlarmTableName(s.App)).Model(&s).
+		Omit("start_time", "start_count").Updates(s).Error
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)

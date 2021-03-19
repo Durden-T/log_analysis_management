@@ -16,8 +16,8 @@ type LevelAlarmStrategy struct {
 	App      string   `json:"app" form:"app" gorm:"column:app;comment:;<-:create"`
 	Level    string   `json:"level" form:"level" gorm:"column:level;comment:"`
 
-	StartTime  time.Time `json:"-" gorm:"-"`
-	StartCount int64     `json:"-" gorm:"-"`
+	StartTime  time.Time `json:"-"`
+	StartCount int64     `json:"-"`
 }
 
 const LevelAlarmTableSuffix = "_level_alarms"

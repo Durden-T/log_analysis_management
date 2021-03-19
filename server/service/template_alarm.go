@@ -20,18 +20,18 @@ func CreateTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
 		return errors.New("app doesn't exist")
 	}
 	var template model.LogTemplate
-	now := time.Now()
 	if err = global.GVA_DB.Table(model.GetTemplateTableName(s.App)).Where("cluster_id = ?", s.TemplateId).Take(&template).Error; err != nil {
 		return
 	}
-	s.StartCount = template.Size
+	now := time.Now()
 	s.StartTime = now
+	s.StartCount = template.Size
 
 	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(s.App)).Create(&s).Error
 	if err != nil {
-		utils.Send([]string{s.App}, "测试报警", "")
+		return
 	}
-	return
+	return utils.Send([]string{s.App}, "测试报警", "")
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)
@@ -63,8 +63,8 @@ func DeleteTemplateAlarmStrategyByIds(ids request.IdsReq, app string) (err error
 //@return: err error
 
 func UpdateTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
-	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(s.App)).Save(&s).Error
-	return err
+	return global.GVA_DB.Table(model.GetTemplateTableName(s.App)).Model(&s).
+		Omit("start_time", "start_count").Updates(s).Error
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)

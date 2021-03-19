@@ -24,7 +24,8 @@ func CreateRegexAlarmStrategy(s model.RegexAlarmStrategy) (err error) {
 	if err != nil {
 		return
 	}
-	s.StartTime = time.Now()
+	now := time.Now()
+	s.StartTime = now
 	s.StartCount = 0
 	err = global.GVA_DB.Table(model.GetRegexAlarmTableName(s.App)).Create(&s).Error
 	if err != nil {
@@ -66,8 +67,8 @@ func UpdateRegexAlarmStrategy(s model.RegexAlarmStrategy) (err error) {
 	if err != nil {
 		return
 	}
-	err = global.GVA_DB.Table(model.GetRegexAlarmTableName(s.App)).Save(&s).Error
-	return err
+	return global.GVA_DB.Table(model.GetRegexAlarmTableName(s.App)).Model(&s).
+		Omit("start_time", "start_count").Updates(s).Error
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)

@@ -16,9 +16,9 @@ type RegexAlarmStrategy struct {
 	App      string   `json:"app" form:"app" gorm:"column:app;comment:;<-:create"`
 	Regex    string   `json:"regex" form:"regex" gorm:"column:regex;comment:"`
 
-	Regexp     *regexp.Regexp `json:"-" gorm:"-"`
-	StartTime  time.Time      `json:"-" gorm:"-"`
-	StartCount int64          `json:"-" gorm:"-"`
+	*regexp.Regexp `json:"-" gorm:"-"`
+	StartTime      time.Time `json:"-"`
+	StartCount     int64     `json:"-"`
 }
 
 const RegexAlarmTableSuffix = "_regex_alarms"

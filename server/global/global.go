@@ -18,6 +18,6 @@ var (
 	GVA_VP     *viper.Viper
 	//GVA_LOG    *oplogging.Logger
 	GVA_LOG     *zap.Logger
-	TIMEWHEEL   timer.Timer
-	APP_MANAGER sync.Map
+	TIMEWHEEL   timer.Timer // 时间轮
+	APP_MANAGER sync.Map    // map[string]*model.App
 )

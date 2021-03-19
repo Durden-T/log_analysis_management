@@ -115,12 +115,8 @@ func GetRealtimeResult(c *gin.Context) {
 	}
 	logParser := oldApp.LogParser
 	res := logParser.FetchResult()
-	if len(res) == 0 {
-		global.GVA_LOG.Error("获取失败")
-		response.FailWithMessage("获取失败", c)
-	} else {
-		response.OkWithDetailed(response.PageResult{
-			List: res,
-		}, "获取成功", c)
-	}
+
+	response.OkWithDetailed(response.PageResult{
+		List: res,
+	}, "获取成功", c)
 }

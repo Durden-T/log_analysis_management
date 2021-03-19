@@ -50,7 +50,7 @@ var menus = []model.SysBaseMenu{
 	{GVA_MODEL: global.GVA_MODEL{ID: 10004, CreatedAt: time.Now(), UpdatedAt: time.Now()}, MenuLevel: 0, ParentId: "0", Path: "alarm", Name: "alarm", Hidden: false, Component: "view/alarm/index.vue", Sort: 2, Meta: model.Meta{Title: "报警策略", Icon: "alarm-clock"}},
 	{GVA_MODEL: global.GVA_MODEL{ID: 10005, CreatedAt: time.Now(), UpdatedAt: time.Now()}, MenuLevel: 0, ParentId: "10004", Path: "templateAlarm", Name: "templateAlarm", Hidden: false, Component: "view/alarm/template_alarm/template_alarm.vue", Sort: 0, Meta: model.Meta{Title: "模版报警", Icon: "s-goods"}},
 	{GVA_MODEL: global.GVA_MODEL{ID: 10006, CreatedAt: time.Now(), UpdatedAt: time.Now()}, MenuLevel: 0, ParentId: "10004", Path: "levelAlarm", Name: "levelAlarm", Hidden: false, Component: "view/alarm/level_alarm/level_alarm.vue", Sort: 1, Meta: model.Meta{Title: "级别报警", Icon: "files"}},
-	{GVA_MODEL: global.GVA_MODEL{ID: 10007, CreatedAt: time.Now(), UpdatedAt: time.Now()}, MenuLevel: 0, ParentId: "10004", Path: "regexAlarm", Name: "regexAlarm", Hidden: false, Component: "view/alarm/regex_alarm/regex_alarm.vue", Sort: 1, Meta: model.Meta{Title: "正则报警", Icon: "notebook"}},
+	{GVA_MODEL: global.GVA_MODEL{ID: 10007, CreatedAt: time.Now(), UpdatedAt: time.Now()}, MenuLevel: 0, ParentId: "10004", Path: "regexAlarm", Name: "regexAlarm", Hidden: false, Component: "view/alarm/regex_alarm/regex_alarm.vue", Sort: 1, Meta: model.Meta{Title: "正则报警", Icon: "notebook-1"}},
 }
 
 //@author: [SliverHorn](https://github.com/SliverHorn)

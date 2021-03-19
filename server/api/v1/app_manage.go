@@ -94,7 +94,7 @@ func GetAppList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.App true "AooID, 启用报警"
+// @Param data body model.App true "AppID, 启用报警"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /app/app [put]
 func UpdateApp(c *gin.Context) {

@@ -31,10 +31,32 @@ definitions:
       to:
         type: string
     type: object
+  config.Excel:
+    properties:
+      dir:
+        type: string
+    type: object
   config.JWT:
     properties:
+      bufferTime:
+        type: integer
+      expiresTime:
+        type: integer
       signingKey:
         type: string
+    type: object
+  config.Kafka:
+    properties:
+      commitInterval:
+        type: integer
+      hosts:
+        items:
+          type: string
+        type: array
+      readMaxBytes:
+        type: integer
+      readMinBytes:
+        type: integer
     type: object
   config.Local:
     properties:
@@ -49,6 +71,8 @@ definitions:
         type: string
       logMode:
         type: boolean
+      logZap:
+        type: string
       maxIdleConns:
         type: integer
       maxOpenConns:
@@ -90,36 +114,30 @@ definitions:
     properties:
       captcha:
         $ref: '#/definitions/config.Captcha'
-        type: object
       casbin:
         $ref: '#/definitions/config.Casbin'
-        type: object
       email:
         $ref: '#/definitions/config.Email'
-        type: object
+      excel:
+        $ref: '#/definitions/config.Excel'
       jwt:
         $ref: '#/definitions/config.JWT'
-        type: object
+      kafka:
+        $ref: '#/definitions/config.Kafka'
       local:
         $ref: '#/definitions/config.Local'
         description: oss
-        type: object
       mysql:
         $ref: '#/definitions/config.Mysql'
         description: gorm
-        type: object
       qiniu:
         $ref: '#/definitions/config.Qiniu'
-        type: object
       redis:
         $ref: '#/definitions/config.Redis'
-        type: object
       system:
         $ref: '#/definitions/config.System'
-        type: object
       zap:
         $ref: '#/definitions/config.Zap'
-        type: object
     type: object
   config.System:
     properties:
@@ -155,6 +173,44 @@ definitions:
       stacktraceKey:
         type: string
     type: object
+  model.App:
+    properties:
+      createdAt:
+        type: string
+      enableAlarm:
+        type: boolean
+      id:
+        type: integer
+      kafkaInputTopic:
+        type: string
+      kafkaOutputTopic:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.AutoCodeStruct:
+    properties:
+      abbreviation:
+        type: string
+      autoCreateApiToSql:
+        type: boolean
+      autoMoveFile:
+        type: boolean
+      description:
+        type: string
+      fields:
+        items:
+          $ref: '#/definitions/model.Field'
+        type: array
+      packageName:
+        type: string
+      structName:
+        type: string
+      tableName:
+        type: string
+    type: object
   model.ExaCustomer:
     properties:
       createdAt:
@@ -167,7 +223,6 @@ definitions:
         type: integer
       sysUser:
         $ref: '#/definitions/model.SysUser'
-        type: object
       sysUserAuthorityID:
         type: string
       sysUserId:
@@ -192,6 +247,101 @@ definitions:
       url:
         type: string
     type: object
+  model.ExcelInfo:
+    properties:
+      fileName:
+        type: string
+      infoList:
+        items:
+          $ref: '#/definitions/model.SysBaseMenu'
+        type: array
+    type: object
+  model.Field:
+    properties:
+      columnName:
+        type: string
+      comment:
+        type: string
+      dataType:
+        type: string
+      dataTypeLong:
+        type: string
+      dictType:
+        type: string
+      fieldDesc:
+        type: string
+      fieldJson:
+        type: string
+      fieldName:
+        type: string
+      fieldSearchType:
+        type: string
+      fieldType:
+        type: string
+    type: object
+  model.LevelAlarmStrategy:
+    properties:
+      app:
+        type: string
+      count:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interval:
+        type: integer
+      level:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.LogTemplate:
+    properties:
+      app:
+        type: string
+      clusterId:
+        type: integer
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      level:
+        type: string
+      size:
+        type: integer
+      tokens:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.RegexAlarmStrategy:
+    properties:
+      app:
+        type: string
+      count:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interval:
+        type: integer
+      name:
+        type: string
+      regex:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   model.SysApi:
     properties:
       apiGroup:
@@ -211,6 +361,10 @@ definitions:
     type: object
   model.SysAuthority:
     properties:
+      app:
+        items:
+          $ref: '#/definitions/model.App'
+        type: array
       authorityId:
         type: string
       authorityName:
@@ -225,6 +379,8 @@ definitions:
         items:
           $ref: '#/definitions/model.SysAuthority'
         type: array
+      defaultRouter:
+        type: string
       deletedAt:
         type: string
       menus:
@@ -246,6 +402,8 @@ definitions:
         items:
           $ref: '#/definitions/model.SysBaseMenu'
         type: array
+      closeTab:
+        type: boolean
       component:
         type: string
       createdAt:
@@ -349,7 +507,7 @@ definitions:
       ip:
         type: string
       latency:
-        type: string
+        type: integer
       method:
         type: string
       path:
@@ -362,7 +520,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/model.SysUser'
-        type: object
       user_id:
         type: integer
     type: object
@@ -370,7 +527,6 @@ definitions:
     properties:
       authority:
         $ref: '#/definitions/model.SysAuthority'
-        type: object
       authorityId:
         type: string
       createdAt:
@@ -388,61 +544,192 @@ definitions:
       uuid:
         type: string
     type: object
-  model.SysWorkflow:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: integer
-      updatedAt:
-        type: string
-      workflowDescription:
-        description: 工作流描述
-        type: string
-      workflowName:
-        description: 工作流英文id
-        type: string
-      workflowNickName:
-        description: 工作流名称
-        type: string
-      workflowStep:
-        description: 工作流步骤
-        items:
-          $ref: '#/definitions/model.SysWorkflowStepInfo'
-        type: array
-    type: object
-  model.SysWorkflowStepInfo:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: integer
-      isEnd:
-        description: 是否是完结流节点
-        type: boolean
-      isStart:
-        description: 是否是开始流节点
-        type: boolean
-      stepAuthorityID:
-        description: 操作者级别id
-        type: string
-      stepName:
-        description: 工作流名称
-        type: string
-      stepNo:
-        description: 步骤id （第几步）
-        type: number
-      updatedAt:
-        type: string
-      workflowID:
-        description: 所属工作流ID
-        type: integer
-    type: object
   model.System:
     properties:
       config:
         $ref: '#/definitions/config.Server'
-        type: object
+    type: object
+  model.TemplateAlarmStrategy:
+    properties:
+      app:
+        type: string
+      count:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interval:
+        type: integer
+      name:
+        type: string
+      ratio:
+        type: number
+      templateId:
+        type: integer
+      updatedAt:
+        type: string
+      useRatio:
+        type: boolean
+    type: object
+  model.WorkflowEdge:
+    properties:
+      clazz:
+        type: string
+      conditionExpression:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      endPoint:
+        $ref: '#/definitions/model.WorkflowEndPoint'
+        description: 终点信息
+      hideIcon:
+        type: boolean
+      id:
+        type: string
+      label:
+        type: string
+      reverse:
+        type: boolean
+      seq:
+        type: string
+      shape:
+        type: string
+      source:
+        type: string
+      sourceAnchor:
+        type: integer
+      startPoint:
+        $ref: '#/definitions/model.WorkflowStartPoint'
+        description: 起点信息
+      target:
+        type: string
+      targetAnchor:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.WorkflowEndPoint:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      index:
+        type: integer
+      updatedAt:
+        type: string
+      workflowEdgeID:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    type: object
+  model.WorkflowNode:
+    properties:
+      assignType:
+        type: string
+      assignValue:
+        type: string
+      clazz:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      cycle:
+        type: string
+      description:
+        type: string
+      dueDate:
+        type: string
+      duration:
+        type: string
+      hideIcon:
+        type: boolean
+      id:
+        type: string
+      label:
+        type: string
+      shape:
+        type: string
+      stateValue:
+        type: string
+      subject:
+        type: string
+      success:
+        type: boolean
+      to:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      view:
+        type: string
+      waitState:
+        type: string
+      workflowProcessID:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    type: object
+  model.WorkflowProcess:
+    properties:
+      category:
+        type: string
+      clazz:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      edges:
+        description: 流程链接数据
+        items:
+          $ref: '#/definitions/model.WorkflowEdge'
+        type: array
+      hideIcon:
+        type: boolean
+      id:
+        type: string
+      label:
+        type: string
+      name:
+        type: string
+      nodes:
+        description: 流程节点数据
+        items:
+          $ref: '#/definitions/model.WorkflowNode'
+        type: array
+      updatedAt:
+        type: string
+      view:
+        type: string
+    type: object
+  model.WorkflowStartPoint:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      index:
+        type: integer
+      updatedAt:
+        type: string
+      workflowEdgeID:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
     type: object
   request.AddMenuAuthorityInfo:
     properties:
@@ -497,6 +784,56 @@ definitions:
           type: integer
         type: array
     type: object
+  request.LevelAlarmStrategySearch:
+    properties:
+      app:
+        type: string
+      count:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interval:
+        type: integer
+      level:
+        type: string
+      name:
+        type: string
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  request.LogTemplateSearch:
+    properties:
+      app:
+        type: string
+      clusterId:
+        type: integer
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      level:
+        type: string
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      size:
+        type: integer
+      tokens:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   request.Login:
     properties:
       captcha:
@@ -514,6 +851,31 @@ definitions:
         type: integer
       pageSize:
         type: integer
+    type: object
+  request.RegexAlarmStrategySearch:
+    properties:
+      app:
+        type: string
+      count:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interval:
+        type: integer
+      name:
+        type: string
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      regex:
+        type: string
+      updatedAt:
+        type: string
     type: object
   request.SearchApiParams:
     properties:
@@ -610,7 +972,7 @@ definitions:
       ip:
         type: string
       latency:
-        type: string
+        type: integer
       method:
         type: string
       page:
@@ -627,22 +989,85 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/model.SysUser'
-        type: object
       user_id:
         type: integer
+    type: object
+  request.TemplateAlarmStrategySearch:
+    properties:
+      app:
+        type: string
+      count:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interval:
+        type: integer
+      name:
+        type: string
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      ratio:
+        type: number
+      templateId:
+        type: integer
+      updatedAt:
+        type: string
+      useRatio:
+        type: boolean
+    type: object
+  request.WorkflowProcessSearch:
+    properties:
+      category:
+        type: string
+      clazz:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      edges:
+        description: 流程链接数据
+        items:
+          $ref: '#/definitions/model.WorkflowEdge'
+        type: array
+      hideIcon:
+        type: boolean
+      id:
+        type: string
+      label:
+        type: string
+      name:
+        type: string
+      nodes:
+        description: 流程节点数据
+        items:
+          $ref: '#/definitions/model.WorkflowNode'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      updatedAt:
+        type: string
+      view:
+        type: string
     type: object
   response.SysAuthorityCopyResponse:
     properties:
       authority:
         $ref: '#/definitions/model.SysAuthority'
-        type: object
       oldAuthorityId:
         type: string
     type: object
 info:
   contact: {}
   description: This is a sample Server pets
-  license: {}
   title: Swagger Example API
   version: 0.0.1
 paths:
@@ -777,6 +1202,96 @@ paths:
       summary: 创建基础api
       tags:
       - SysApi
+  /app/app:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: AppID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.App'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除App
+      tags:
+      - App
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: App名, kafka输入topic, kafka输出topic
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.App'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"创建成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建App
+      tags:
+      - App
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: AppID, 启用报警
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.App'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"更新成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新app, 是否启用报警
+      tags:
+      - App
+  /app/appList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码, 每页大小
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PageInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取权限App列表
+      tags:
+      - App
   /authority/copyAuthority:
     post:
       consumes:
@@ -869,6 +1384,29 @@ paths:
       summary: 分页获取角色列表
       tags:
       - Authority
+  /authority/setAppAuthority:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 设置角色App权限
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.SysAuthority'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"设置成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 设置角色App权限
+      tags:
+      - Authority
   /authority/setDataAuthority:
     post:
       consumes:
@@ -919,6 +1457,13 @@ paths:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: 创建自动代码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.AutoCodeStruct'
       produces:
       - application/json
       responses:
@@ -977,6 +1522,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取当前数据库所有表
+      tags:
+      - AutoCode
+  /autoCode/preview:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 预览创建代码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.AutoCodeStruct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"创建成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 预览创建后的代码
       tags:
       - AutoCode
   /base/captcha:
@@ -1186,6 +1754,83 @@ paths:
       summary: 发送测试邮件
       tags:
       - System
+  /excel/downloadTemplate:
+    get:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 模板名称
+        in: query
+        name: fileName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: 下载模板
+      tags:
+      - excel
+  /excel/exportExcel:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 导出Excel文件信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExcelInfo'
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: 导出Excel
+      tags:
+      - excel
+  /excel/importExcel:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 导入Excel文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"导入成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 导入Excel文件
+      tags:
+      - excel
+  /excel/loadExcel:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"加载数据成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 加载Excel数据
+      tags:
+      - excel
   /fileUploadAndDownload/breakpointContinue:
     post:
       consumes:
@@ -1334,6 +1979,252 @@ paths:
       summary: jwt加入黑名单
       tags:
       - Jwt
+  /levelAlarm/createLevelAlarmStrategy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建LevelAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LevelAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建LevelAlarmStrategy
+      tags:
+      - LevelAlarmStrategy
+  /levelAlarm/deleteLevelAlarmStrategy:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除LevelAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LevelAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除LevelAlarmStrategy
+      tags:
+      - LevelAlarmStrategy
+  /levelAlarm/deleteLevelAlarmStrategyByIds:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除LevelAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.IdsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"批量删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 批量删除LevelAlarmStrategy
+      tags:
+      - LevelAlarmStrategy
+  /levelAlarm/findLevelAlarmStrategy:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用id查询LevelAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LevelAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"查询成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用id查询LevelAlarmStrategy
+      tags:
+      - LevelAlarmStrategy
+  /levelAlarm/getLevelAlarmStrategyList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取LevelAlarmStrategy列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.LevelAlarmStrategySearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取LevelAlarmStrategy列表
+      tags:
+      - LevelAlarmStrategy
+  /levelAlarm/updateLevelAlarmStrategy:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 更新LevelAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LevelAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"更新成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新LevelAlarmStrategy
+      tags:
+      - LevelAlarmStrategy
+  /logTemplate/createLogTemplate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建LogTemplate
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LogTemplate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建LogTemplate
+      tags:
+      - LogTemplate
+  /logTemplate/deleteLogTemplate:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除LogTemplate
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LogTemplate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除LogTemplate
+      tags:
+      - LogTemplate
+  /logTemplate/deleteLogTemplateByIds:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除LogTemplate
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.IdsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"批量删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 批量删除LogTemplate
+      tags:
+      - LogTemplate
+  /logTemplate/getLogTemplateList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取LogTemplate列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.LogTemplateSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取LogTemplate列表
+      tags:
+      - LogTemplate
+  /logTemplate/getRealtimeResult:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取实时的日志模版
+      tags:
+      - LogTemplate
   /menu/GetMenuAuthority:
     post:
       consumes:
@@ -1537,6 +2428,144 @@ paths:
       summary: 更新菜单
       tags:
       - Menu
+  /regexAlarm/createRegexAlarmStrategy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建RegexAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegexAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建RegexAlarmStrategy
+      tags:
+      - RegexAlarmStrategy
+  /regexAlarm/deleteRegexAlarmStrategy:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除RegexAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegexAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除RegexAlarmStrategy
+      tags:
+      - RegexAlarmStrategy
+  /regexAlarm/deleteRegexAlarmStrategyByIds:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除RegexAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.IdsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"批量删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 批量删除RegexAlarmStrategy
+      tags:
+      - RegexAlarmStrategy
+  /regexAlarm/findRegexAlarmStrategy:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用id查询RegexAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegexAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"查询成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用id查询RegexAlarmStrategy
+      tags:
+      - RegexAlarmStrategy
+  /regexAlarm/getRegexAlarmStrategyList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取RegexAlarmStrategy列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegexAlarmStrategySearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取RegexAlarmStrategy列表
+      tags:
+      - RegexAlarmStrategy
+  /regexAlarm/updateRegexAlarmStrategy:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 更新RegexAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegexAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"更新成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新RegexAlarmStrategy
+      tags:
+      - RegexAlarmStrategy
   /simpleUploader/checkFileMd5:
     get:
       parameters:
@@ -1581,6 +2610,12 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      parameters:
+      - description: 断点续传插件版示例
+        in: formData
+        name: file
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -2008,6 +3043,144 @@ paths:
       summary: 设置配置文件内容
       tags:
       - System
+  /templateAlarm/createTemplateAlarmStrategy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建TemplateAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.TemplateAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建TemplateAlarmStrategy
+      tags:
+      - TemplateAlarmStrategy
+  /templateAlarm/deleteTemplateAlarmStrategy:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除TemplateAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.TemplateAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除TemplateAlarmStrategy
+      tags:
+      - TemplateAlarmStrategy
+  /templateAlarm/deleteTemplateAlarmStrategyByIds:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除TemplateAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.IdsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"批量删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 批量删除TemplateAlarmStrategy
+      tags:
+      - TemplateAlarmStrategy
+  /templateAlarm/findTemplateAlarmStrategy:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用id查询TemplateAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.TemplateAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"查询成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用id查询TemplateAlarmStrategy
+      tags:
+      - TemplateAlarmStrategy
+  /templateAlarm/getTemplateAlarmStrategyList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取TemplateAlarmStrategy列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.TemplateAlarmStrategySearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取TemplateAlarmStrategy列表
+      tags:
+      - TemplateAlarmStrategy
+  /templateAlarm/updateTemplateAlarmStrategy:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 更新TemplateAlarmStrategy
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.TemplateAlarmStrategy'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"更新成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新TemplateAlarmStrategy
+      tags:
+      - TemplateAlarmStrategy
   /user/changePassword:
     put:
       parameters:
@@ -2140,25 +3313,254 @@ paths:
       summary: 设置用户信息
       tags:
       - SysUser
-  /workflow/createWorkFlow:
+  /workflowProcess/completeWorkflowMove:
     post:
-      parameters:
-      - description: 注册工作流接口
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/model.SysWorkflow'
+      consumes:
+      - application/json
       produces:
       - application/json
       responses:
         "200":
-          description: '{"success":true,"data":{},"msg":"注册成功"}'
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
           schema:
             type: string
-      summary: 注册工作流
+      security:
+      - ApiKeyAuth: []
+      summary: 提交工作流
       tags:
-      - workflow
+      - WorkflowProcess
+  /workflowProcess/createWorkflowProcess:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建WorkflowProcess
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.WorkflowProcess'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建WorkflowProcess
+      tags:
+      - WorkflowProcess
+  /workflowProcess/deleteWorkflowProcess:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除WorkflowProcess
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.WorkflowProcess'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除WorkflowProcess
+      tags:
+      - WorkflowProcess
+  /workflowProcess/deleteWorkflowProcessByIds:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除WorkflowProcess
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.IdsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"删除成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 批量删除WorkflowProcess
+      tags:
+      - WorkflowProcess
+  /workflowProcess/findWorkflowProcess:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用id查询WorkflowProcess
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.WorkflowProcess'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"查询成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用id查询WorkflowProcess
+      tags:
+      - WorkflowProcess
+  /workflowProcess/findWorkflowStep:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用id查询WorkflowProcess
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.WorkflowProcess'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"查询成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用id查询工作流步骤
+      tags:
+      - WorkflowProcess
+  /workflowProcess/getMyNeed:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 我的待办
+      tags:
+      - WorkflowProcess
+  /workflowProcess/getMyStated:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 我发起的工作流
+      tags:
+      - WorkflowProcess
+  /workflowProcess/getWorkflowMoveByID:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 根据id获取当前节点详情和过往
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.GetById'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 根据id获取当前节点详情和历史
+      tags:
+      - WorkflowProcess
+  /workflowProcess/getWorkflowProcessList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取WorkflowProcess列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowProcessSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取WorkflowProcess列表
+      tags:
+      - WorkflowProcess
+  /workflowProcess/startWorkflow:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 开启工作流
+      tags:
+      - WorkflowProcess
+  /workflowProcess/updateWorkflowProcess:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 更新WorkflowProcess
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.WorkflowProcess'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"更新成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新WorkflowProcess
+      tags:
+      - WorkflowProcess
 securityDefinitions:
   ApiKeyAuth:
     in: header

@@ -2,101 +2,110 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"gin-vue-admin/global"
-	"gin-vue-admin/utils"
+	"github.com/antlabs/timer"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
+	"gopkg.in/eapache/queue.v1"
 	"sort"
 	"sync"
 	"time"
 )
 
-type templateBucket struct {
-	bucketSize int
-	buckets    []map[uint32]*LogTemplate
-	result     map[uint32]*LogTemplate
-	lock       sync.RWMutex
+type logTmplMap map[uint32]*LogTemplate
 
-	flushInterval                time.Duration
-	flushEliminationBucketsCount int
-	done                         chan<- struct{}
+// 时间桶
+type templateBucket struct {
+	bucketSize int          // 桶的数量
+	buckets    *queue.Queue // 元素类型为logTmplMap
+	lock       sync.Mutex   // 互斥flush与put
+
+	result sync.Map // key为uint32 模板id, val为*LogTemplate
+
+	cancel timer.TimeNoder // 取消定时淘汰函数
 }
 
-func newTemplateBucket(bucketSize, flushEliminationBucketsCount int, flushInterval time.Duration) *templateBucket {
+func newTemplateBucket(bucketSize int) *templateBucket {
 	bucket := &templateBucket{
-		bucketSize:                   bucketSize,
-		flushInterval:                flushInterval,
-		flushEliminationBucketsCount: flushEliminationBucketsCount,
-		buckets:                      make([]map[uint32]*LogTemplate, bucketSize),
-		result:                       make(map[uint32]*LogTemplate),
+		bucketSize: bucketSize,
+		buckets:    queue.New(),
 	}
-
-	for i := 0; i < bucket.bucketSize; i++ {
-		bucket.buckets[i] = make(map[uint32]*LogTemplate, 0)
-	}
-
-	bucket.done = utils.SetInterval(bucket.flushInterval, bucket.flush)
+	bucket.buckets.Add(make(logTmplMap))
+	bucket.cancel = global.TIMEWHEEL.ScheduleFunc(time.Second, bucket.flush)
 
 	return bucket
 }
 
-func (b *templateBucket) flush() error {
+func (b *templateBucket) flush() {
 	b.lock.Lock()
-	defer b.lock.Unlock()
+	b.buckets.Add(make(logTmplMap))
+	length := b.buckets.Length()
+	if length <= b.bucketSize {
+		b.lock.Unlock()
+		return
+	}
 
-	count := b.flushEliminationBucketsCount
-	eliminated := b.buckets[0:count]
-	for _, bucket := range eliminated {
-		for id, template := range bucket {
-			if oldTemplate, found := b.result[id]; found {
-				oldTemplate.Size -= template.Size
-				if oldTemplate.Size == 0 {
-					delete(b.result, id)
-				}
-			} else {
-				fmt.Println("here")
+	// 获取最前面的桶
+	bucket, ok :=  b.buckets.Remove().(logTmplMap)
+	b.lock.Unlock()
+
+	if !ok {
+		return
+	}
+	for id, template := range bucket {
+		// 修改result
+		if templateInterface, found := b.result.Load(id); found {
+			oldTemplate := templateInterface.(*LogTemplate)
+			oldTemplate.Size -= template.Size
+			if oldTemplate.Size == 0 {
+				b.result.Delete(id)
 			}
 		}
 	}
-
-	b.buckets = b.buckets[count:]
-	for i := 0; i < count; i++ {
-		b.buckets = append(b.buckets, make(map[uint32]*LogTemplate, 0))
-	}
-	return nil
 }
 
 func (b *templateBucket) Close() {
-	b.done <- struct{}{}
+	if b.cancel != nil {
+		b.cancel.Stop()
+	}
 }
 
-func (b *templateBucket) Put(index int, t *LogTemplate) {
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	bucket := b.buckets[index]
+func (b *templateBucket) Put(t *LogTemplate) {
+	b.lock.Lock()
+	index := b.buckets.Length() - 1
+	// 获取最后一个桶
+	bucket, ok := b.buckets.Get(index).(logTmplMap)
+	b.lock.Unlock()
+	if !ok {
+		return
+	}
 	id := t.ClusterId
+	// 已在该index的桶内，增加数量
 	if oldTemplate, found := bucket[id]; found {
 		oldTemplate.Size += t.Size
 	} else {
+		// 放入该桶
 		bucket[id] = t
 	}
 
-	if oldTemplate, found := b.result[id]; found {
+	// 处理result: 增加数量/放入result
+	if templateInterface, found := b.result.Load(id); found {
+		oldTemplate := templateInterface.(*LogTemplate)
 		oldTemplate.Size += t.Size
 	} else {
-		b.result[id] = t.Copy()
+		b.result.Store(id, t.Copy())
 	}
 }
 
+// 为调用sort.sort，实现sort.Interface
 type TemplateSlice []*LogTemplate
 
 func (s TemplateSlice) Len() int {
 	return len(s)
 }
 
+// 根据size降序排序
 func (s TemplateSlice) Less(i, j int) bool {
 	return s[i].Size > s[j].Size
 }
@@ -106,12 +115,12 @@ func (s TemplateSlice) Swap(i, j int) {
 }
 
 func (b *templateBucket) GetResult() TemplateSlice {
-	b.lock.Lock()
 	result := make(TemplateSlice, 0)
-	for _, t := range b.result {
-		result = append(result, t.Copy())
-	}
-	b.lock.Unlock()
+	b.result.Range(func(key, val interface{}) bool {
+		template := val.(*LogTemplate)
+		result = append(result, template.Copy())
+		return true
+	})
 
 	sort.Sort(result)
 	return result
@@ -125,6 +134,8 @@ type logParser struct {
 
 	resultBucket *templateBucket // 获取到的结果
 
+	alarmManager *originalLogAlarmManager // 检查报警
+
 	cancel chan struct{}
 }
 
@@ -136,12 +147,13 @@ const secondsOfMinute = 60
 //@param: app string, writer *kafka.Writer, reader *kafka.Reader
 //@return: *logParser
 
-func NewLogParser(app string, writer *kafka.Writer, reader *kafka.Reader) *logParser {
+func NewLogParser(app string, writer *kafka.Writer, reader *kafka.Reader, alarmManager *originalLogAlarmManager) *logParser {
 	return &logParser{
 		app:          app,
 		reader:       reader,
 		writer:       writer,
-		resultBucket: newTemplateBucket(secondsOfMinute, 1, time.Second),
+		resultBucket: newTemplateBucket(secondsOfMinute),
+		alarmManager: alarmManager,
 		cancel:       make(chan struct{}),
 	}
 }
@@ -159,6 +171,7 @@ func (l *logParser) Run() {
 
 func (l *logParser) Stop() {
 	l.cancel <- struct{}{}
+	l.resultBucket.Close()
 }
 
 func (l *logParser) updateResult() {
@@ -174,14 +187,19 @@ func (l *logParser) updateResult() {
 		return
 	}
 
-	index := time.Now().Second() % secondsOfMinute
-	l.resultBucket.Put(index, template)
+	// 将日志添加到alarmManager中
+	if l.alarmManager != nil {
+		l.alarmManager.AddLog(template.Copy())
+	}
+
+	l.resultBucket.Put(template)
 }
 
 func (l *logParser) FetchResult() TemplateSlice {
 	return l.resultBucket.GetResult()
 }
 
+// 将原始日志解析成模板
 func (l *logParser) ProcessLog(log []byte) error {
 	return l.writer.WriteMessages(context.TODO(), kafka.Message{
 		Value: log,

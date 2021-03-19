@@ -1,30 +1,32 @@
 package model
 
 import (
-	"context"
 	"gin-vue-admin/global"
 	"github.com/antlabs/timer"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
-	"regexp"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
-type OriginalLogAlarmManager struct {
+type originalLogAlarmManager struct {
 	app         string
-	reader      *kafka.Reader // 获取原始日志
-	levelAlarms map[string]*LevelAlarmStrategy
-	regexAlarms map[string]*RegexAlarmStrategy
-	lock        sync.Mutex
+	levelAlarms []*LevelAlarmStrategy
+	regexAlarms []*RegexAlarmStrategy
 
-	cancel             chan struct{}
-	cancelUpdateAlarms timer.TimeNoder
+	buf           []*LogTemplate // 输入日志
+	altBuf        []*LogTemplate // 轮换buffer
+	switchBufLock sync.RWMutex   // 交换buffer与alternateBuffer
+	isChecking    uint32         // 防止多个checkInputLog并发运行
+
+	cancel      chan struct{}
+	cancelCheck timer.TimeNoder
 }
 
-func NewOriginalLogAlarmManager(app string, reader *kafka.Reader) (*OriginalLogAlarmManager, error) {
+func NewOriginalLogAlarmManager(app string) (*originalLogAlarmManager, error) {
 	err := global.GVA_DB.Table(GetLevelAlarmTableName(app)).AutoMigrate(&LevelAlarmStrategy{})
 	if err != nil {
 		return nil, err
@@ -35,60 +37,89 @@ func NewOriginalLogAlarmManager(app string, reader *kafka.Reader) (*OriginalLogA
 		return nil, err
 	}
 
-	manager := &OriginalLogAlarmManager{
-		app:    app,
-		reader: reader,
-		cancel: make(chan struct{}),
+	manager := &originalLogAlarmManager{
+		app:        app,
+		cancel:     make(chan struct{}),
+		isChecking: 0,
 	}
-	manager.cancelUpdateAlarms = global.TIMEWHEEL.ScheduleFunc(5*time.Second, manager.updateAlarms)
 	return manager, nil
 }
 
-func (m *OriginalLogAlarmManager) Run() {
-	for {
-		select {
-		case <-m.cancel:
-			return
-		default:
-			m.checkInputLog()
-		}
-	}
+func (m *originalLogAlarmManager) Start() {
+	m.cancelCheck = global.TIMEWHEEL.ScheduleFunc(alarmCheckInterval, m.checkInputLog)
 }
 
-func (m *OriginalLogAlarmManager) Stop() {
+func (m *originalLogAlarmManager) Stop() {
 	m.cancel <- struct{}{}
-	m.cancelUpdateAlarms.Stop()
+	m.cancelCheck.Stop()
 }
 
-func (m *OriginalLogAlarmManager) checkInputLog() {
-	msg, err := m.reader.ReadMessage(context.TODO())
-	if err != nil {
-		global.GVA_LOG.Error("read kafka message failed", zap.Any("err", err))
-		return
-	}
-	if len(msg.Value) == 0 {
-		return
-	}
-
-	m.lock.Lock()
-	defer m.lock.Unlock()
-
-	m.checkLevelAlarm(msg.Value)
-	m.checkRegexAlarm(msg.Value)
+// 将日志添加到buffer中
+func (m *originalLogAlarmManager) AddLog(log *LogTemplate) {
+	m.switchBufLock.RLock()
+	m.buf = append(m.buf, log)
+	m.switchBufLock.RUnlock()
 }
 
-func (m *OriginalLogAlarmManager) checkLevelAlarm(val []byte) {
+func (m *originalLogAlarmManager) checkInputLog() {
+	// cas操作 检查此函数是否正在运行
+	if !atomic.CompareAndSwapUint32(&m.isChecking, 0, 1) {
+		return
+	}
+	defer func() {
+		atomic.StoreUint32(&m.isChecking, 0)
+	}()
+	// 交换buffer, 减少锁的时间
+	m.switchBufLock.Lock()
+	buffer := m.buf
+	m.buf, m.altBuf = m.altBuf, m.buf
+	m.switchBufLock.Unlock()
+
+	if len(buffer) == 0 {
+		return
+	}
+
+	m.checkLevelAlarm(buffer)
+	m.checkRegexAlarm(buffer)
+	// 清空备用buffer
+	m.altBuf = m.altBuf[:0]
+}
+
+func (m *originalLogAlarmManager) checkLevelAlarm(buffer []*LogTemplate) {
+	table := GetLevelAlarmTableName(m.app)
+	db := global.GVA_DB.Begin()
+	defer db.Commit()
+
+	if db.Error != nil {
+		return
+	}
+	if err := m.updateLevelAlarms(db); err != nil {
+		global.GVA_LOG.Error("update level alarm failed", zap.Error(err))
+	}
+
 	if len(m.levelAlarms) == 0 {
 		return
 	}
-	level := jsoniter.Get(val, "level").ToString()
-	level = strings.ToLower(level)
+
+	// 将slice转化为map
+	levelAlarms := make(map[string]*LevelAlarmStrategy)
+	for _, alarm := range m.levelAlarms {
+		levelAlarms[alarm.Level] = alarm
+	}
+
 	now := time.Now()
-	if alarm, found := m.levelAlarms[level]; found {
+	for _, log := range buffer {
+		level := strings.ToLower(log.Level)
+		alarm, found := levelAlarms[level]
+		// 未配置对应level的报警
+		if !found {
+			continue
+		}
+		// 与上次检查的间隔大于报警设置的间隔， 跳过本次检查
 		if now.Sub(alarm.StartTime) > time.Duration(alarm.Interval) {
 			alarm.StartTime = now
 			alarm.StartCount = 0
-			return
+			continue
 		}
 		alarm.StartCount++
 		if alarm.StartCount >= alarm.Count {
@@ -98,81 +129,65 @@ func (m *OriginalLogAlarmManager) checkLevelAlarm(val []byte) {
 			}
 		}
 	}
+	// 保存startCount与startTimes
+	if err := db.Table(table).Save(&m.levelAlarms).Error; err != nil {
+		global.GVA_LOG.Error("save level alarm failed", zap.String("app", m.app), zap.Error(err))
+	}
 }
 
-func (m *OriginalLogAlarmManager) checkRegexAlarm(val []byte) {
+func (m *originalLogAlarmManager) checkRegexAlarm(buffer []*LogTemplate) {
+	table := GetLevelAlarmTableName(m.app)
+	db := global.GVA_DB.Begin()
+	defer db.Commit()
+	if db.Error != nil {
+		return
+	}
+	if err := m.updateRegexAlarms(db); err != nil {
+		global.GVA_LOG.Error("update regex alarm failed", zap.Error(err))
+	}
+
 	if len(m.regexAlarms) == 0 {
 		return
 	}
-	content := jsoniter.Get(val, "content").ToString()
+
 	now := time.Now()
-	for _, alarm := range m.regexAlarms {
-		if alarm.Regexp == nil {
-			continue
-		}
-		if now.Sub(alarm.StartTime) > time.Duration(alarm.Interval) {
-			alarm.StartTime = now
-			alarm.StartCount = 0
-			return
-		}
+	for _, log := range buffer {
+		for _, alarm := range m.regexAlarms {
+			if alarm.Regexp == nil {
+				continue
+			}
+			if now.Sub(alarm.StartTime) > time.Duration(alarm.Interval) {
+				alarm.StartTime = now
+				alarm.StartCount = 0
+				continue
+			}
 
-		if alarm.Regexp.MatchString(content) {
-			alarm.StartCount++
-		}
+			if alarm.Regexp.MatchString(log.Content) {
+				alarm.StartCount++
+			}
 
-		if alarm.StartCount >= alarm.Count {
-			if err := sendAlarm(alarm, alarm.Email); err != nil {
-				global.GVA_LOG.Error("send regex alarm failed", zap.String("app", alarm.App),
-					zap.Any("regex_alarm", alarm), zap.Error(err))
+			if alarm.StartCount >= alarm.Count {
+				if err := sendAlarm(alarm, alarm.Email); err != nil {
+					global.GVA_LOG.Error("send regex alarm failed", zap.String("app", alarm.App),
+						zap.Any("regex_alarm", alarm), zap.Error(err))
+				}
 			}
 		}
 	}
+	// 保存startCount与startTimes
+	if err := db.Table(table).Save(&m.regexAlarms).Error; err != nil {
+		global.GVA_LOG.Error("save regex alarm failed", zap.String("app", m.app), zap.Error(err))
+	}
 }
 
-func (m *OriginalLogAlarmManager) updateAlarms() {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-
-	m.updateLevelAlarms()
-	m.updateRegexAlarms()
-}
-
-func (m *OriginalLogAlarmManager) updateLevelAlarms() {
-	var levelAlarms []*LevelAlarmStrategy
+func (m *originalLogAlarmManager) updateLevelAlarms(db *gorm.DB) error {
 	table := GetLevelAlarmTableName(m.app)
-	global.GVA_DB.Table(table).Find(&levelAlarms)
-	for _, alarm := range levelAlarms {
-		if oldAlarm, found := m.levelAlarms[alarm.Name]; found {
-			alarm.StartCount = oldAlarm.StartCount
-			alarm.StartTime = oldAlarm.StartTime
-		}
-	}
-	m.levelAlarms = make(map[string]*LevelAlarmStrategy)
-	for _, alarm := range levelAlarms {
-		m.levelAlarms[alarm.Name] = alarm
-	}
+	// 上行锁
+	return db.Table(table).Clauses(clause.Locking{Strength: "UPDATE"}).Find(&m.levelAlarms).Error
 }
 
-func (m *OriginalLogAlarmManager) updateRegexAlarms() {
-	var regexAlarms []*RegexAlarmStrategy
-
+func (m *originalLogAlarmManager) updateRegexAlarms(db *gorm.DB) error {
 	table := GetRegexAlarmTableName(m.app)
-	global.GVA_DB.Table(table).Find(&regexAlarms)
-
-	for _, alarm := range regexAlarms {
-		if oldAlarm, found := m.regexAlarms[alarm.Name]; found {
-			alarm.StartCount = oldAlarm.StartCount
-			alarm.StartTime = oldAlarm.StartTime
-		}
-	}
-	m.regexAlarms = make(map[string]*RegexAlarmStrategy)
-	var err error
-	for _, alarm := range regexAlarms {
-		if alarm.Regexp, err = regexp.Compile(alarm.Regex); err != nil {
-			global.GVA_LOG.Error("compile regex alarm failed", zap.String("app", alarm.App),
-				zap.Any("regex_alarm", alarm), zap.Error(err))
-			continue
-		}
-		m.regexAlarms[alarm.Name] = alarm
-	}
+	// 上行锁
+	return db.Table(table).Clauses(clause.Locking{Strength: "UPDATE"}).Find(&m.regexAlarms).Error
 }

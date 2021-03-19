@@ -19,7 +19,6 @@ var doc = `{
         "description": "{{.Description}}",
         "title": "{{.Title}}",
         "contact": {},
-        "license": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -242,6 +241,154 @@ var doc = `{
                 }
             }
         },
+        "/app/app": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "更新app, 是否启用报警",
+                "parameters": [
+                    {
+                        "description": "AppID, 启用报警",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "创建App",
+                "parameters": [
+                    {
+                        "description": "App名, kafka输入topic, kafka输出topic",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"创建成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "删除App",
+                "parameters": [
+                    {
+                        "description": "AppID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/appList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "分页获取权限App列表",
+                "parameters": [
+                    {
+                        "description": "页码, 每页大小",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PageInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/authority/copyAuthority": {
             "post": {
                 "security": [
@@ -394,6 +541,44 @@ var doc = `{
                 }
             }
         },
+        "/authority/setAppAuthority": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authority"
+                ],
+                "summary": "设置角色App权限",
+                "parameters": [
+                    {
+                        "description": "设置角色App权限",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SysAuthority"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"设置成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/authority/setDataAuthority": {
             "post": {
                 "security": [
@@ -487,6 +672,17 @@ var doc = `{
                     "AutoCode"
                 ],
                 "summary": "自动代码模板",
+                "parameters": [
+                    {
+                        "description": "创建自动代码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AutoCodeStruct"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "{\"success\":true,\"data\":{},\"msg\":\"创建成功\"}",
@@ -571,6 +767,44 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/autoCode/preview": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoCode"
+                ],
+                "summary": "预览创建后的代码",
+                "parameters": [
+                    {
+                        "description": "预览创建代码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AutoCodeStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"创建成功\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -919,6 +1153,134 @@ var doc = `{
                 }
             }
         },
+        "/excel/downloadTemplate": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excel"
+                ],
+                "summary": "下载模板",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模板名称",
+                        "name": "fileName",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/excel/exportExcel": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "excel"
+                ],
+                "summary": "导出Excel",
+                "parameters": [
+                    {
+                        "description": "导出Excel文件信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ExcelInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/excel/importExcel": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excel"
+                ],
+                "summary": "导入Excel文件",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "导入Excel文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"导入成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/excel/loadExcel": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excel"
+                ],
+                "summary": "加载Excel数据",
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"加载数据成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/fileUploadAndDownload/breakpointContinue": {
             "post": {
                 "security": [
@@ -1156,6 +1518,413 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "{\"success\":true,\"data\":{},\"msg\":\"拉黑成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/levelAlarm/createLevelAlarmStrategy": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LevelAlarmStrategy"
+                ],
+                "summary": "创建LevelAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "创建LevelAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LevelAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/levelAlarm/deleteLevelAlarmStrategy": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LevelAlarmStrategy"
+                ],
+                "summary": "删除LevelAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "删除LevelAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LevelAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/levelAlarm/deleteLevelAlarmStrategyByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LevelAlarmStrategy"
+                ],
+                "summary": "批量删除LevelAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "批量删除LevelAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"批量删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/levelAlarm/findLevelAlarmStrategy": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LevelAlarmStrategy"
+                ],
+                "summary": "用id查询LevelAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "用id查询LevelAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LevelAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/levelAlarm/getLevelAlarmStrategyList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LevelAlarmStrategy"
+                ],
+                "summary": "分页获取LevelAlarmStrategy列表",
+                "parameters": [
+                    {
+                        "description": "分页获取LevelAlarmStrategy列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LevelAlarmStrategySearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/levelAlarm/updateLevelAlarmStrategy": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LevelAlarmStrategy"
+                ],
+                "summary": "更新LevelAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "更新LevelAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LevelAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logTemplate/createLogTemplate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogTemplate"
+                ],
+                "summary": "创建LogTemplate",
+                "parameters": [
+                    {
+                        "description": "创建LogTemplate",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LogTemplate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logTemplate/deleteLogTemplate": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogTemplate"
+                ],
+                "summary": "删除LogTemplate",
+                "parameters": [
+                    {
+                        "description": "删除LogTemplate",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LogTemplate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logTemplate/deleteLogTemplateByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogTemplate"
+                ],
+                "summary": "批量删除LogTemplate",
+                "parameters": [
+                    {
+                        "description": "批量删除LogTemplate",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"批量删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logTemplate/getLogTemplateList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogTemplate"
+                ],
+                "summary": "分页获取LogTemplate列表",
+                "parameters": [
+                    {
+                        "description": "分页获取LogTemplate列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LogTemplateSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logTemplate/getRealtimeResult": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogTemplate"
+                ],
+                "summary": "获取实时的日志模版",
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -1499,6 +2268,234 @@ var doc = `{
                 }
             }
         },
+        "/regexAlarm/createRegexAlarmStrategy": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegexAlarmStrategy"
+                ],
+                "summary": "创建RegexAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "创建RegexAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegexAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/regexAlarm/deleteRegexAlarmStrategy": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegexAlarmStrategy"
+                ],
+                "summary": "删除RegexAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "删除RegexAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegexAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/regexAlarm/deleteRegexAlarmStrategyByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegexAlarmStrategy"
+                ],
+                "summary": "批量删除RegexAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "批量删除RegexAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"批量删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/regexAlarm/findRegexAlarmStrategy": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegexAlarmStrategy"
+                ],
+                "summary": "用id查询RegexAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "用id查询RegexAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegexAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/regexAlarm/getRegexAlarmStrategyList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegexAlarmStrategy"
+                ],
+                "summary": "分页获取RegexAlarmStrategy列表",
+                "parameters": [
+                    {
+                        "description": "分页获取RegexAlarmStrategy列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RegexAlarmStrategySearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/regexAlarm/updateRegexAlarmStrategy": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegexAlarmStrategy"
+                ],
+                "summary": "更新RegexAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "更新RegexAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegexAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/simpleUploader/checkFileMd5": {
             "get": {
                 "security": [
@@ -1582,6 +2579,15 @@ var doc = `{
                     "SimpleUploader"
                 ],
                 "summary": "断点续传插件版示例",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "断点续传插件版示例",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "{\"success\":true,\"data\":{},\"msg\":\"切片创建成功\"}",
@@ -2280,6 +3286,234 @@ var doc = `{
                 }
             }
         },
+        "/templateAlarm/createTemplateAlarmStrategy": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TemplateAlarmStrategy"
+                ],
+                "summary": "创建TemplateAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "创建TemplateAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TemplateAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/templateAlarm/deleteTemplateAlarmStrategy": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TemplateAlarmStrategy"
+                ],
+                "summary": "删除TemplateAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "删除TemplateAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TemplateAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/templateAlarm/deleteTemplateAlarmStrategyByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TemplateAlarmStrategy"
+                ],
+                "summary": "批量删除TemplateAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "批量删除TemplateAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"批量删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/templateAlarm/findTemplateAlarmStrategy": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TemplateAlarmStrategy"
+                ],
+                "summary": "用id查询TemplateAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "用id查询TemplateAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TemplateAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/templateAlarm/getTemplateAlarmStrategyList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TemplateAlarmStrategy"
+                ],
+                "summary": "分页获取TemplateAlarmStrategy列表",
+                "parameters": [
+                    {
+                        "description": "分页获取TemplateAlarmStrategy列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.TemplateAlarmStrategySearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/templateAlarm/updateTemplateAlarmStrategy": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TemplateAlarmStrategy"
+                ],
+                "summary": "更新TemplateAlarmStrategy",
+                "parameters": [
+                    {
+                        "description": "更新TemplateAlarmStrategy",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TemplateAlarmStrategy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/changePassword": {
             "put": {
                 "security": [
@@ -2497,29 +3731,411 @@ var doc = `{
                 }
             }
         },
-        "/workflow/createWorkFlow": {
+        "/workflowProcess/completeWorkflowMove": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "workflow"
+                    "WorkflowProcess"
                 ],
-                "summary": "注册工作流",
+                "summary": "提交工作流",
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/createWorkflowProcess": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "创建WorkflowProcess",
                 "parameters": [
                     {
-                        "description": "注册工作流接口",
+                        "description": "创建WorkflowProcess",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.SysWorkflow"
+                            "$ref": "#/definitions/model.WorkflowProcess"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"success\":true,\"data\":{},\"msg\":\"注册成功\"}",
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/deleteWorkflowProcess": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "删除WorkflowProcess",
+                "parameters": [
+                    {
+                        "description": "删除WorkflowProcess",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.WorkflowProcess"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/deleteWorkflowProcessByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "批量删除WorkflowProcess",
+                "parameters": [
+                    {
+                        "description": "批量删除WorkflowProcess",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/findWorkflowProcess": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "用id查询WorkflowProcess",
+                "parameters": [
+                    {
+                        "description": "用id查询WorkflowProcess",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.WorkflowProcess"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/findWorkflowStep": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "用id查询工作流步骤",
+                "parameters": [
+                    {
+                        "description": "用id查询WorkflowProcess",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.WorkflowProcess"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/getMyNeed": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "我的待办",
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/getMyStated": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "我发起的工作流",
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/getWorkflowMoveByID": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "根据id获取当前节点详情和历史",
+                "parameters": [
+                    {
+                        "description": "根据id获取当前节点详情和过往",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GetById"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/getWorkflowProcessList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "分页获取WorkflowProcess列表",
+                "parameters": [
+                    {
+                        "description": "分页获取WorkflowProcess列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowProcessSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/startWorkflow": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "开启工作流",
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflowProcess/updateWorkflowProcess": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WorkflowProcess"
+                ],
+                "summary": "更新WorkflowProcess",
+                "parameters": [
+                    {
+                        "description": "更新WorkflowProcess",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.WorkflowProcess"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -2577,11 +4193,45 @@ var doc = `{
                 }
             }
         },
+        "config.Excel": {
+            "type": "object",
+            "properties": {
+                "dir": {
+                    "type": "string"
+                }
+            }
+        },
         "config.JWT": {
             "type": "object",
             "properties": {
+                "bufferTime": {
+                    "type": "integer"
+                },
+                "expiresTime": {
+                    "type": "integer"
+                },
                 "signingKey": {
                     "type": "string"
+                }
+            }
+        },
+        "config.Kafka": {
+            "type": "object",
+            "properties": {
+                "commitInterval": {
+                    "type": "integer"
+                },
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "readMaxBytes": {
+                    "type": "integer"
+                },
+                "readMinBytes": {
+                    "type": "integer"
                 }
             }
         },
@@ -2604,6 +4254,9 @@ var doc = `{
                 },
                 "logMode": {
                     "type": "boolean"
+                },
+                "logZap": {
+                    "type": "string"
                 },
                 "maxIdleConns": {
                     "type": "integer"
@@ -2666,45 +4319,41 @@ var doc = `{
             "type": "object",
             "properties": {
                 "captcha": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Captcha"
                 },
                 "casbin": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Casbin"
                 },
                 "email": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Email"
                 },
+                "excel": {
+                    "$ref": "#/definitions/config.Excel"
+                },
                 "jwt": {
-                    "type": "object",
                     "$ref": "#/definitions/config.JWT"
+                },
+                "kafka": {
+                    "$ref": "#/definitions/config.Kafka"
                 },
                 "local": {
                     "description": "oss",
-                    "type": "object",
                     "$ref": "#/definitions/config.Local"
                 },
                 "mysql": {
                     "description": "gorm",
-                    "type": "object",
                     "$ref": "#/definitions/config.Mysql"
                 },
                 "qiniu": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Qiniu"
                 },
                 "redis": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Redis"
                 },
                 "system": {
-                    "type": "object",
                     "$ref": "#/definitions/config.System"
                 },
                 "zap": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Zap"
                 }
             }
@@ -2761,6 +4410,64 @@ var doc = `{
                 }
             }
         },
+        "model.App": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "enableAlarm": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kafkaInputTopic": {
+                    "type": "string"
+                },
+                "kafkaOutputTopic": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AutoCodeStruct": {
+            "type": "object",
+            "properties": {
+                "abbreviation": {
+                    "type": "string"
+                },
+                "autoCreateApiToSql": {
+                    "type": "boolean"
+                },
+                "autoMoveFile": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Field"
+                    }
+                },
+                "packageName": {
+                    "type": "string"
+                },
+                "structName": {
+                    "type": "string"
+                },
+                "tableName": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ExaCustomer": {
             "type": "object",
             "properties": {
@@ -2777,7 +4484,6 @@ var doc = `{
                     "type": "integer"
                 },
                 "sysUser": {
-                    "type": "object",
                     "$ref": "#/definitions/model.SysUser"
                 },
                 "sysUserAuthorityID": {
@@ -2817,6 +4523,151 @@ var doc = `{
                 }
             }
         },
+        "model.ExcelInfo": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "type": "string"
+                },
+                "infoList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.SysBaseMenu"
+                    }
+                }
+            }
+        },
+        "model.Field": {
+            "type": "object",
+            "properties": {
+                "columnName": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "dataType": {
+                    "type": "string"
+                },
+                "dataTypeLong": {
+                    "type": "string"
+                },
+                "dictType": {
+                    "type": "string"
+                },
+                "fieldDesc": {
+                    "type": "string"
+                },
+                "fieldJson": {
+                    "type": "string"
+                },
+                "fieldName": {
+                    "type": "string"
+                },
+                "fieldSearchType": {
+                    "type": "string"
+                },
+                "fieldType": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LevelAlarmStrategy": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval": {
+                    "type": "integer"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LogTemplate": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "clusterId": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "tokens": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RegexAlarmStrategy": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "regex": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.SysApi": {
             "type": "object",
             "properties": {
@@ -2846,6 +4697,12 @@ var doc = `{
         "model.SysAuthority": {
             "type": "object",
             "properties": {
+                "app": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.App"
+                    }
+                },
                 "authorityId": {
                     "type": "string"
                 },
@@ -2866,6 +4723,9 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/model.SysAuthority"
                     }
+                },
+                "defaultRouter": {
+                    "type": "string"
                 },
                 "deletedAt": {
                     "type": "string"
@@ -2898,6 +4758,9 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/model.SysBaseMenu"
                     }
+                },
+                "closeTab": {
+                    "type": "boolean"
                 },
                 "component": {
                     "type": "string"
@@ -3055,7 +4918,7 @@ var doc = `{
                     "type": "string"
                 },
                 "latency": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "method": {
                     "type": "string"
@@ -3073,7 +4936,6 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/model.SysUser"
                 },
                 "user_id": {
@@ -3085,7 +4947,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "authority": {
-                    "type": "object",
                     "$ref": "#/definitions/model.SysAuthority"
                 },
                 "authorityId": {
@@ -3114,83 +4975,285 @@ var doc = `{
                 }
             }
         },
-        "model.SysWorkflow": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "workflowDescription": {
-                    "description": "工作流描述",
-                    "type": "string"
-                },
-                "workflowName": {
-                    "description": "工作流英文id",
-                    "type": "string"
-                },
-                "workflowNickName": {
-                    "description": "工作流名称",
-                    "type": "string"
-                },
-                "workflowStep": {
-                    "description": "工作流步骤",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.SysWorkflowStepInfo"
-                    }
-                }
-            }
-        },
-        "model.SysWorkflowStepInfo": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isEnd": {
-                    "description": "是否是完结流节点",
-                    "type": "boolean"
-                },
-                "isStart": {
-                    "description": "是否是开始流节点",
-                    "type": "boolean"
-                },
-                "stepAuthorityID": {
-                    "description": "操作者级别id",
-                    "type": "string"
-                },
-                "stepName": {
-                    "description": "工作流名称",
-                    "type": "string"
-                },
-                "stepNo": {
-                    "description": "步骤id （第几步）",
-                    "type": "number"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "workflowID": {
-                    "description": "所属工作流ID",
-                    "type": "integer"
-                }
-            }
-        },
         "model.System": {
             "type": "object",
             "properties": {
                 "config": {
-                    "type": "object",
                     "$ref": "#/definitions/config.Server"
+                }
+            }
+        },
+        "model.TemplateAlarmStrategy": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ratio": {
+                    "type": "number"
+                },
+                "templateId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "useRatio": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.WorkflowEdge": {
+            "type": "object",
+            "properties": {
+                "clazz": {
+                    "type": "string"
+                },
+                "conditionExpression": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endPoint": {
+                    "description": "终点信息",
+                    "$ref": "#/definitions/model.WorkflowEndPoint"
+                },
+                "hideIcon": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "reverse": {
+                    "type": "boolean"
+                },
+                "seq": {
+                    "type": "string"
+                },
+                "shape": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "sourceAnchor": {
+                    "type": "integer"
+                },
+                "startPoint": {
+                    "description": "起点信息",
+                    "$ref": "#/definitions/model.WorkflowStartPoint"
+                },
+                "target": {
+                    "type": "string"
+                },
+                "targetAnchor": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.WorkflowEndPoint": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "workflowEdgeID": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.WorkflowNode": {
+            "type": "object",
+            "properties": {
+                "assignType": {
+                    "type": "string"
+                },
+                "assignValue": {
+                    "type": "string"
+                },
+                "clazz": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "cycle": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "hideIcon": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "shape": {
+                    "type": "string"
+                },
+                "stateValue": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "view": {
+                    "type": "string"
+                },
+                "waitState": {
+                    "type": "string"
+                },
+                "workflowProcessID": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.WorkflowProcess": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "clazz": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "流程链接数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.WorkflowEdge"
+                    }
+                },
+                "hideIcon": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "description": "流程节点数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.WorkflowNode"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "view": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.WorkflowStartPoint": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "workflowEdgeID": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
                 }
             }
         },
@@ -3277,6 +5340,82 @@ var doc = `{
                 }
             }
         },
+        "request.LevelAlarmStrategySearch": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval": {
+                    "type": "integer"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.LogTemplateSearch": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "clusterId": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "tokens": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "request.Login": {
             "type": "object",
             "properties": {
@@ -3302,6 +5441,44 @@ var doc = `{
                 },
                 "pageSize": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.RegexAlarmStrategySearch": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "regex": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -3449,7 +5626,7 @@ var doc = `{
                     "type": "string"
                 },
                 "latency": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "method": {
                     "type": "string"
@@ -3473,7 +5650,6 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/model.SysUser"
                 },
                 "user_id": {
@@ -3481,11 +5657,109 @@ var doc = `{
                 }
             }
         },
+        "request.TemplateAlarmStrategySearch": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "ratio": {
+                    "type": "number"
+                },
+                "templateId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "useRatio": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "request.WorkflowProcessSearch": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "clazz": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "流程链接数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.WorkflowEdge"
+                    }
+                },
+                "hideIcon": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "description": "流程节点数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.WorkflowNode"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "view": {
+                    "type": "string"
+                }
+            }
+        },
         "response.SysAuthorityCopyResponse": {
             "type": "object",
             "properties": {
                 "authority": {
-                    "type": "object",
                     "$ref": "#/definitions/model.SysAuthority"
                 },
                 "oldAuthorityId": {

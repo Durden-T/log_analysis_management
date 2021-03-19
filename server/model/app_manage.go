@@ -8,29 +8,31 @@ import (
 
 type App struct {
 	global.GVA_MODEL
-	Name             string     `json:"name" form:"name" gorm:"comment:app名;unique;'<-:create"`
-	KafkaInputTopic  string     `json:"kafkaInputTopic" form:"kafkaInputTopic" gorm:"comment:kafka输入topic"`
-	KafkaOutputTopic string     `json:"kafkaOutputTopic" form:"kafkaOutputTopic" gorm:"comment:kafka输出topic"`
-	EnableAlarm      bool       `json:"enableAlarm" form:"enableAlarm" gorm:"comment:启用报警"`
-	LogParser        *logParser `json:"-" gorm:"-"`
+	Name             string `json:"name" form:"name" gorm:"comment:app名;unique;'<-:create"`
+	KafkaInputTopic  string `json:"kafkaInputTopic" form:"kafkaInputTopic" gorm:"comment:kafka输入topic"`
+	KafkaOutputTopic string `json:"kafkaOutputTopic" form:"kafkaOutputTopic" gorm:"comment:kafka输出topic"`
+	EnableAlarm      bool   `json:"enableAlarm" form:"enableAlarm" gorm:"comment:启用报警"`
 
-	*OriginalLogAlarmManager
-	*TemplateAlarmManager `json:"-" gorm:"-"`
+	LogParser *logParser `json:"-" gorm:"-"`
+
+	*originalLogAlarmManager `json:"-" gorm:"-"`
+	*templateAlarmManager    `json:"-" gorm:"-"`
 }
 
 const (
-	AppTemplateTableSuffix = "_log_templates"
-	GroupID                = "log_log_analysis_management"
+	AppTemplateTableSuffix = "_log_templates"              // 数据库表名后缀
+	GroupID                = "log_log_analysis_management" // kafka group id
 )
 
 func (a *App) Init() error {
-	if err := a.initLogParser(); err != nil {
-		return err
-	}
 	if a.EnableAlarm {
 		if err := a.InitAlarm(); err != nil {
 			return err
 		}
+	}
+
+	if err := a.initLogParser(); err != nil {
+		return err
 	}
 	global.APP_MANAGER.Store(a.Name, a)
 	return nil
@@ -47,11 +49,11 @@ func (a *App) InitAlarm() error {
 }
 
 func (a *App) DisableAlarm() {
-	if a.TemplateAlarmManager != nil {
-		a.TemplateAlarmManager.Stop()
+	if a.templateAlarmManager != nil {
+		a.templateAlarmManager.Stop()
 	}
-	if a.OriginalLogAlarmManager != nil {
-		a.OriginalLogAlarmManager.Stop()
+	if a.originalLogAlarmManager != nil {
+		a.originalLogAlarmManager.Stop()
 	}
 }
 
@@ -75,7 +77,7 @@ func (a *App) initLogParser() error {
 		Compression:  kafka.Lz4,
 		BatchTimeout: 0, // 实时写 不缓冲
 	}
-
+	// 尝试写一条空信息，出错说明连接可能失败
 	if err := writer.WriteMessages(context.Background(), kafka.Message{Value: []byte{}}); err != nil {
 		writer.Close()
 		return err
@@ -89,39 +91,29 @@ func (a *App) initLogParser() error {
 		MaxBytes:       cfg.ReadMaxBytes,
 		CommitInterval: cfg.CommitInterval,
 		StartOffset:    kafka.LastOffset,
+		//StartOffset:    kafka.FirstOffset,
 	})
 
-	a.LogParser = NewLogParser(a.Name, writer, reader)
+	a.LogParser = NewLogParser(a.Name, writer, reader, a.originalLogAlarmManager)
 	go a.LogParser.Run()
 	return nil
 }
 
 func (a *App) initTemplateAlarmManager() (err error) {
-	a.TemplateAlarmManager, err = NewTemplateAlarmManager(a.Name)
+	a.templateAlarmManager, err = NewTemplateAlarmManager(a.Name)
 	if err != nil {
 		return
 	}
+	a.templateAlarmManager.Start()
 	return
 }
 
 func (a *App) initOriginalLogAlarmManager() (err error) {
-	cfg := global.GVA_CONFIG.Kafka
-
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Topic:          a.KafkaOutputTopic,
-		Brokers:        cfg.Hosts,
-		GroupID:        GroupID,
-		MinBytes:       cfg.ReadMinBytes,
-		MaxBytes:       cfg.ReadMaxBytes,
-		CommitInterval: cfg.CommitInterval,
-		StartOffset:    kafka.LastOffset,
-	})
-
-	a.OriginalLogAlarmManager, err = NewOriginalLogAlarmManager(a.Name, reader)
+	a.originalLogAlarmManager, err = NewOriginalLogAlarmManager(a.Name)
 	if err != nil {
 		return
 	}
-	go a.OriginalLogAlarmManager.Run()
+	a.originalLogAlarmManager.Start()
 	return nil
 }
 

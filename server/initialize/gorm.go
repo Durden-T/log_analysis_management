@@ -56,6 +56,7 @@ func MysqlTables(db *gorm.DB) {
 		model.WorkflowEndPoint{},
 		model.WorkflowMove{},
 		model.ExaWfLeave{},
+
 		model.App{},
 	)
 	if err != nil {
@@ -124,12 +125,7 @@ func gormConfig(mod bool) *gorm.Config {
 	return config
 }
 
-//@author: [Durden-T](https://github.com/Durden-T)
-//@function: InitBusiness
-//@description: 初始化业务
-//@param:
-//@return:
-
+// 初始化业务
 func InitBusiness() {
 	apps, err := service.GetAllApps()
 	if err != nil {
@@ -137,11 +133,12 @@ func InitBusiness() {
 	}
 
 	for _, app := range apps {
-		if err := app.Init(); err != nil {
+		if err = app.Init(); err != nil {
 			global.GVA_LOG.Warn("init app failed", zap.String("app", app.Name), zap.Any("err", err))
 		}
 	}
 
+	// 自动初始化新增的app
 	global.TIMEWHEEL.ScheduleFunc(5*time.Second, func() {
 		apps, _ := service.GetAllApps()
 		for _, app := range apps {
