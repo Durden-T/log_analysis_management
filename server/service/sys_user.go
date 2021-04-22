@@ -5,8 +5,8 @@ import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
-	"gin-vue-admin/utils"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -21,8 +21,12 @@ func Register(u model.SysUser) (err error, userInter model.SysUser) {
 	if !errors.Is(global.GVA_DB.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
 		return errors.New("用户名已注册"), userInter
 	}
-	// 否则 附加uuid 密码md5简单加密 注册
-	u.Password = utils.MD5V([]byte(u.Password))
+	// 否则 附加uuid 密码bcrypt加密 注册
+	encryptedPasswd, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err, u
+	}
+	u.Password = string(encryptedPasswd)
 	u.UUID = uuid.NewV4()
 	err = global.GVA_DB.Create(&u).Error
 	return err, u
@@ -36,8 +40,12 @@ func Register(u model.SysUser) (err error, userInter model.SysUser) {
 
 func Login(u *model.SysUser) (err error, userInter *model.SysUser) {
 	var user model.SysUser
-	u.Password = utils.MD5V([]byte(u.Password))
-	err = global.GVA_DB.Where("username = ? AND password = ?", u.Username, u.Password).Preload("Authority").First(&user).Error
+	if err = global.GVA_DB.Where("username = ?", u.Username).Preload("Authority").First(&user).Error; err != nil {
+		return err, nil
+	}
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password)); err != nil {
+		return err, nil
+	}
 	return err, &user
 }
 
@@ -49,8 +57,19 @@ func Login(u *model.SysUser) (err error, userInter *model.SysUser) {
 
 func ChangePassword(u *model.SysUser, newPassword string) (err error, userInter *model.SysUser) {
 	var user model.SysUser
-	u.Password = utils.MD5V([]byte(u.Password))
-	err = global.GVA_DB.Where("username = ? AND password = ?", u.Username, u.Password).First(&user).Update("password", utils.MD5V([]byte(newPassword))).Error
+	if err = global.GVA_DB.Where("username = ?", u.Username).First(&user).Error; err != nil {
+		return err, nil
+	}
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password)); err != nil {
+		return err, nil
+	}
+
+	encryptedPasswd, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err, nil
+	}
+
+	err = global.GVA_DB.Model(&user).Update("password", encryptedPasswd).Error
 	return err, u
 }
 

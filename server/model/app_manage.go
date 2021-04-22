@@ -13,7 +13,7 @@ type App struct {
 	KafkaOutputTopic string `json:"kafkaOutputTopic" form:"kafkaOutputTopic" gorm:"comment:kafka输出topic"`
 	EnableAlarm      bool   `json:"enableAlarm" form:"enableAlarm" gorm:"comment:启用报警"`
 
-	LogParser *logParser `json:"-" gorm:"-"`
+	TemplateCollector *templateCollector `json:"-" gorm:"-"`
 
 	*originalLogAlarmManager `json:"-" gorm:"-"`
 	*templateAlarmManager    `json:"-" gorm:"-"`
@@ -31,7 +31,7 @@ func (a *App) Init() error {
 		}
 	}
 
-	if err := a.initLogParser(); err != nil {
+	if err := a.initTemplateCollector(); err != nil {
 		return err
 	}
 	global.APP_MANAGER.Store(a.Name, a)
@@ -57,7 +57,7 @@ func (a *App) DisableAlarm() {
 	}
 }
 
-func (a *App) initLogParser() error {
+func (a *App) initTemplateCollector() error {
 	templateTableName := GetTemplateTableName(a.Name)
 	if err := global.GVA_DB.Table(templateTableName).AutoMigrate(&LogTemplate{}); err != nil {
 		return err
@@ -90,12 +90,12 @@ func (a *App) initLogParser() error {
 		MinBytes:       cfg.ReadMinBytes,
 		MaxBytes:       cfg.ReadMaxBytes,
 		CommitInterval: cfg.CommitInterval,
-		StartOffset:    kafka.LastOffset,
-		//StartOffset:    kafka.FirstOffset,
+		//StartOffset:    kafka.LastOffset,
+		StartOffset:    kafka.FirstOffset,
 	})
 
-	a.LogParser = NewLogParser(a.Name, writer, reader, a.originalLogAlarmManager)
-	go a.LogParser.Run()
+	a.TemplateCollector = NewTemplateCollector(a.Name, writer, reader, a.originalLogAlarmManager)
+	go a.TemplateCollector.Run()
 	return nil
 }
 
@@ -118,7 +118,7 @@ func (a *App) initOriginalLogAlarmManager() (err error) {
 }
 
 func (a *App) Stop() {
-	a.LogParser.Stop()
+	a.TemplateCollector.Stop()
 	a.DisableAlarm()
 }
 

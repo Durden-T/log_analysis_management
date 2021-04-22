@@ -35,7 +35,7 @@ func CreateLogTemplate(l model.LogTemplate) (err error) {
 	if err = enc.Encode(l); err != nil {
 		return
 	}
-	return app.LogParser.ProcessLog(buf.Bytes())
+	return app.TemplateCollector.ProcessLog(buf.Bytes())
 
 }
 

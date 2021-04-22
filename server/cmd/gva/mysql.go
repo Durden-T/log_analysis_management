@@ -58,6 +58,7 @@ func (m *_mysql) Init() {
 func (m *_mysql) AutoMigrateTables() {
 	if !global.GVA_DB.Migrator().HasTable("casbin_rule") {
 		m.err = global.GVA_DB.Migrator().CreateTable(&gormadapter.CasbinRule{})
+		m.err = global.GVA_DB.Migrator().RenameTable("casbin_rules", "casbin_rule")
 	}
 	m.err = m.db.AutoMigrate(
 		new(model.SysApi),

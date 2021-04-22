@@ -1,12 +1,12 @@
 # Gin-Vue-Admin Global Configuration
 
-# jwt configuration
+# jwt configuration 忽略
 jwt:
   signing-key: 'qxqytq'
   expires-time: 604800
   buffer-time: 86400
 
-# zap logger configuration
+# zap logger configuration 日志格式等配置
 zap:
   level: 'debug'
   format: 'console'
@@ -18,7 +18,7 @@ zap:
   stacktrace-key: 'stacktrace'
   log-in-console: true
 
-# redis configuration
+# redis configuration 多点登录用 默认不启用防止多点登录功能 忽略
 redis:
   db: 0
   addr: '127.0.0.1:6379'
@@ -26,15 +26,15 @@ redis:
 
 # email configuration
 email:
-  to: 'xxx@qq.com'
-  port: 465
-  from: '1251424057@qq.com'
+  to: 'xxx@qq.com'# 忽略
+  port: 465 #邮件端口
+  from: '1251424057@qq.com' # 发送邮箱 改成自己的
   host: 'smtp.qq.com'
   is-ssl: true
-  secret: 'omibrjrrijvmjdjb'
-  nickname: 'test'
+  secret: 'omibrjrrijvmjdjb' # 在邮箱上创建smtp的secret
+  nickname: 'alarm' # 别名
 
-# casbin configuration
+# casbin configuration # 权限model 忽略
 casbin:
   model-path: './resource/rbac_model.conf'
 
@@ -43,10 +43,10 @@ system:
   env: 'public'  # Change to "develop" to skip authentication for development mode
   addr: 8888
   db-type: 'mysql'
-  oss-type: 'local'    # 控制oss选择走本期还是 七牛等其他仓 自行增加其他oss仓可以在 server/utils/upload/upload.go 中 NewOss函数配置
-  use-multipoint: false
+  oss-type: 'local'    # 忽略 控制oss选择走本期还是 七牛等其他仓 自行增加其他oss仓可以在 server/utils/upload/upload.go 中 NewOss函数配置
+  use-multipoint: false # 多点登录
 
-# captcha configuration
+# captcha configuration 验证码设置 忽略
 captcha:
   key-long: 6
   img-width: 240
@@ -56,19 +56,19 @@ captcha:
 mysql:
   path: '127.0.0.1:3306'
   config: 'charset=utf8mb4&parseTime=True&loc=Local'
-  db-name: 'log_analysis_management'
+  db-name: 'log_analysis_management' #数据库名
   username: 'root'
   password: 'k!2a7Lrn3'
-  max-idle-conns: 10
-  max-open-conns: 100
-  log-mode: false
+  max-idle-conns: 10 # 最大闲置连接数
+  max-open-conns: 100 # 最大同时连接数
+  log-mode: false # 不开启数据库日志
   log-zap: ""
 
-# local configuration
+# local configuration 忽略
 local:
   path: 'uploads/file'
 
-# qiniu configuration (请自行七牛申请对应的 公钥 私钥 bucket �?域名地址)
+# 忽略 qiniu configuration (请自行七牛申请对应的 公钥 私钥 bucket �?域名地址)
 qiniu:
   zone: 'ZoneHuadong'
   bucket: 'qm-plus-img'
@@ -81,11 +81,11 @@ qiniu:
 
 kafka:
   hosts:
-    - 192.168.1.103:9092
+    - 10.128.244.250:9092
   read_min_bytes: 10e3 # 10kb
   read_max_bytes: 10e6 # 10mb
   commit_interval: 5s  # flushes commits to Kafka every 5 second
 
-# excel configuration
+# excel configuration 忽略
 excel:
   dir: './resource/excel/'

@@ -13,7 +13,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
-	github.com/gammazero/deque v0.0.0-20201010052221-3932da5530cc
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/go-openapi/spec v0.20.3 // indirect
@@ -30,7 +29,6 @@ require (
 	github.com/onsi/ginkgo v1.15.0 // indirect
 	github.com/onsi/gomega v1.10.5 // indirect
 	github.com/qiniu/api.v7/v7 v7.8.2
-	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/segmentio/kafka-go v0.4.9
 	github.com/shirou/gopsutil v3.21.1+incompatible
@@ -40,6 +38,7 @@ require (
 	github.com/swaggo/swag v1.7.0
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0
+	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
 	golang.org/x/sys v0.0.0-20210314195730-07df6a141424 // indirect
 	golang.org/x/tools v0.1.0 // indirect

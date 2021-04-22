@@ -113,8 +113,8 @@ func GetRealtimeResult(c *gin.Context) {
 		return
 
 	}
-	logParser := oldApp.LogParser
-	res := logParser.FetchResult()
+	templateCollector := oldApp.TemplateCollector
+	res := templateCollector.FetchResult()
 
 	response.OkWithDetailed(response.PageResult{
 		List: res,

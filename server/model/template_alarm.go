@@ -12,7 +12,7 @@ import (
 type TemplateAlarmStrategy struct {
 	global.GVA_MODEL
 	Interval Duration `json:"interval" form:"interval" gorm:"column:interval;comment:"`
-	Count    int64    `json:"count" form:"count" gorm:"column:count;comment:"`
+	Count    uint64   `json:"count" form:"count" gorm:"column:count;comment:"`
 	UseRatio bool     `json:"useRatio" form:"useRatio" gorm:"column:use_ratio;comment:"`
 	Ratio    float64  `json:"ratio" form:"ratio" gorm:"column:ratio;comment:"`
 	Name     string   `json:"name" form:"name" gorm:"column:name;comment:;unique"`
@@ -21,8 +21,9 @@ type TemplateAlarmStrategy struct {
 
 	TemplateId uint32 `json:"templateId" form:"templateId" gorm:"<-:create"`
 
-	StartCount int64     `json:"-"`
-	StartTime  time.Time `json:"-"`
+	StartTime    time.Time `json:"-"`
+	StartCount   uint64    `json:"-"`
+	LastSendTime time.Time `json:"-"`
 }
 
 type Duration time.Duration

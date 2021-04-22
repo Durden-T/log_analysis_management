@@ -75,6 +75,18 @@
 
       <el-table-column label="阀值" prop="count" width="120"></el-table-column>
 
+      <el-table-column label="使用比例" prop="useRatio" width="120">
+        <template slot-scope="scope">{{
+          scope.row.useRatio | formatBoolean
+        }}</template>
+      </el-table-column>
+
+      <el-table-column
+        label="比例阀值"
+        prop="ratio"
+        width="120"
+      ></el-table-column>
+
       <el-table-column
         label="接收邮箱"
         prop="email"
@@ -168,6 +180,26 @@
             placeholder="请输入"
           ></el-input>
         </el-form-item>
+
+         <el-form-item label="使用比例:">
+          <el-switch
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="是"
+            inactive-text="否"
+            v-model="formData.useRatio"
+            clearable
+          ></el-switch>
+        </el-form-item>
+
+        <el-form-item label="比例阀值:">
+          <el-input-number
+            v-model="formData.ratio"
+            :precision="2"
+            :step="0.1"
+            clearable
+          ></el-input-number>
+        </el-form-item>
       </el-form>
       <div class="dialog-footer" slot="footer">
         <el-button @click="closeDialog">取 消</el-button>
@@ -201,6 +233,8 @@ export default {
       formData: {
         interval: "",
         count: 0,
+        useRatio: false,
+        ratio: 0,
         name: "",
         email: "",
         app: "",
@@ -289,6 +323,8 @@ export default {
       this.formData = {
         interval: "",
         count: 0,
+        useRatio: false,
+        ratio: 0,
         name: "",
         email: "",
         app: "",

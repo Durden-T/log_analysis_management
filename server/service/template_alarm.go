@@ -31,7 +31,7 @@ func CreateTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
 	if err != nil {
 		return
 	}
-	return utils.Send([]string{s.App}, "测试报警", "")
+	return utils.Send([]string{s.Email}, "测试报警", "")
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)
@@ -63,18 +63,18 @@ func DeleteTemplateAlarmStrategyByIds(ids request.IdsReq, app string) (err error
 //@return: err error
 
 func UpdateTemplateAlarmStrategy(s model.TemplateAlarmStrategy) (err error) {
-	return global.GVA_DB.Table(model.GetTemplateTableName(s.App)).Model(&s).
-		Omit("start_time", "start_count").Updates(s).Error
+	return global.GVA_DB.Table(model.GetTemplateAlarmTableName(s.App)).Model(&s).
+		Omit("start_time", "start_count").Updates(&s).Error
 }
 
 //@author: [Durden-T](https://github.com/Durden-T)
 //@function: GetTemplateAlarmStrategy
 //@description: 根据id获取TemplateAlarmStrategy记录
-//@param: id uint
+//@param: id uint, app string
 //@return: err error, s model.TemplateAlarmStrategy
 
-func GetTemplateAlarmStrategy(id uint) (err error, s model.TemplateAlarmStrategy) {
-	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(s.App)).Where("id = ?", id).First(&s).Error
+func GetTemplateAlarmStrategy(id uint, app string) (err error, s model.TemplateAlarmStrategy) {
+	err = global.GVA_DB.Table(model.GetTemplateAlarmTableName(app)).Where("id = ?", id).First(&s).Error
 	return
 }
 

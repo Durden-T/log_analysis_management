@@ -126,7 +126,7 @@ func (b *templateBucket) GetResult() TemplateSlice {
 	return result
 }
 
-type logParser struct {
+type templateCollector struct {
 	app    string        // app名
 	writer *kafka.Writer // 写入日志，生成模版
 
@@ -142,13 +142,13 @@ type logParser struct {
 const secondsOfMinute = 60
 
 //@author: [Durden-T](https://github.com/Durden-T)
-//@function: NewLogParser
-//@description: 创建logParser
+//@function: NewTemplateCollector
+//@description: templateCollector
 //@param: app string, writer *kafka.Writer, reader *kafka.Reader
-//@return: *logParser
+//@return: *templateCollector
 
-func NewLogParser(app string, writer *kafka.Writer, reader *kafka.Reader, alarmManager *originalLogAlarmManager) *logParser {
-	return &logParser{
+func NewTemplateCollector(app string, writer *kafka.Writer, reader *kafka.Reader, alarmManager *originalLogAlarmManager) *templateCollector {
+	return &templateCollector{
 		app:          app,
 		reader:       reader,
 		writer:       writer,
@@ -158,24 +158,24 @@ func NewLogParser(app string, writer *kafka.Writer, reader *kafka.Reader, alarmM
 	}
 }
 
-func (l *logParser) Run() {
+func (t *templateCollector) Run() {
 	for {
 		select {
-		case <-l.cancel:
+		case <-t.cancel:
 			return
 		default:
-			l.updateResult()
+			t.updateResult()
 		}
 	}
 }
 
-func (l *logParser) Stop() {
-	l.cancel <- struct{}{}
-	l.resultBucket.Close()
+func (t *templateCollector) Stop() {
+	t.cancel <- struct{}{}
+	t.resultBucket.Close()
 }
 
-func (l *logParser) updateResult() {
-	msg, err := l.reader.ReadMessage(context.TODO())
+func (t *templateCollector) updateResult() {
+	msg, err := t.reader.ReadMessage(context.TODO())
 	if err != nil {
 		global.GVA_LOG.Error("read kafka message failed", zap.Any("err", err))
 		return
@@ -188,20 +188,20 @@ func (l *logParser) updateResult() {
 	}
 
 	// 将日志添加到alarmManager中
-	if l.alarmManager != nil {
-		l.alarmManager.AddLog(template.Copy())
+	if t.alarmManager != nil {
+		t.alarmManager.AddLog(template.Copy())
 	}
 
-	l.resultBucket.Put(template)
+	t.resultBucket.Put(template)
 }
 
-func (l *logParser) FetchResult() TemplateSlice {
-	return l.resultBucket.GetResult()
+func (t *templateCollector) FetchResult() TemplateSlice {
+	return t.resultBucket.GetResult()
 }
 
 // 将原始日志解析成模板
-func (l *logParser) ProcessLog(log []byte) error {
-	return l.writer.WriteMessages(context.TODO(), kafka.Message{
+func (t *templateCollector) ProcessLog(log []byte) error {
+	return t.writer.WriteMessages(context.TODO(), kafka.Message{
 		Value: log,
 	})
 }

@@ -11,8 +11,6 @@ import (
 // 拦截器
 func CasbinHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Next()
-		return
 		claims, _ := c.Get("claims")
 		waitUse := claims.(*request.CustomClaims)
 		// 获取请求的URI

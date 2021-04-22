@@ -115,18 +115,36 @@ func (m *originalLogAlarmManager) checkLevelAlarm(buffer []*LogTemplate) {
 		if !found {
 			continue
 		}
+		alarm.CurCount++
+
 		// 与上次检查的间隔大于报警设置的间隔， 跳过本次检查
 		if now.Sub(alarm.StartTime) > time.Duration(alarm.Interval) {
 			alarm.StartTime = now
-			alarm.StartCount = 0
+			alarm.StartCount = alarm.CurCount
 			continue
 		}
-		alarm.StartCount++
-		if alarm.StartCount >= alarm.Count {
+		if now.Sub(alarm.LastSendTime) < blockAlarmInterval {
+			continue
+		}
+		var (
+			threshold uint64
+			increase  bool
+		)
+		if alarm.UseRatio {
+			threshold = uint64((1 + alarm.Ratio) * float64(alarm.StartCount))
+			increase = alarm.Ratio > 0
+		} else {
+			threshold = alarm.StartCount + alarm.Count
+			increase = alarm.Count > 0
+		}
+		// 检查报警条件
+		if (increase && alarm.CurCount >= threshold) || (!increase && alarm.CurCount <= threshold) {
 			if err := sendAlarm(alarm, alarm.Email); err != nil {
 				global.GVA_LOG.Error("send level alarm failed", zap.String("app", alarm.App),
 					zap.Any("level_alarm", alarm), zap.Error(err))
+				continue
 			}
+			alarm.LastSendTime = now
 		}
 	}
 	// 保存startCount与startTimes
@@ -158,19 +176,35 @@ func (m *originalLogAlarmManager) checkRegexAlarm(buffer []*LogTemplate) {
 			}
 			if now.Sub(alarm.StartTime) > time.Duration(alarm.Interval) {
 				alarm.StartTime = now
-				alarm.StartCount = 0
+				alarm.StartCount = alarm.CurCount
 				continue
 			}
-
+			if now.Sub(alarm.LastSendTime) < blockAlarmInterval {
+				continue
+			}
 			if alarm.Regexp.MatchString(log.Content) {
-				alarm.StartCount++
+				alarm.CurCount++
 			}
 
-			if alarm.StartCount >= alarm.Count {
+			var (
+				threshold uint64
+				increase  bool
+			)
+			if alarm.UseRatio {
+				threshold = uint64((1 + alarm.Ratio) * float64(alarm.StartCount))
+				increase = alarm.Ratio > 0
+			} else {
+				threshold = alarm.StartCount + alarm.Count
+				increase = alarm.Count > 0
+			}
+			// 检查报警条件
+			if (increase && alarm.CurCount >= threshold) || (!increase && alarm.CurCount <= threshold) {
 				if err := sendAlarm(alarm, alarm.Email); err != nil {
 					global.GVA_LOG.Error("send regex alarm failed", zap.String("app", alarm.App),
 						zap.Any("regex_alarm", alarm), zap.Error(err))
+					continue
 				}
+				alarm.LastSendTime = now
 			}
 		}
 	}

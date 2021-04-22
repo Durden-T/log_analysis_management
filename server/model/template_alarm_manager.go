@@ -1,6 +1,7 @@
 package model
 
 import (
+	"bytes"
 	"gin-vue-admin/global"
 	"gin-vue-admin/utils"
 	"github.com/antlabs/timer"
@@ -18,6 +19,7 @@ type templateAlarmManager struct {
 const (
 	alarmCheckInterval       = 500 * time.Millisecond // 报警检查间隔
 	TemplateAlarmTableSuffix = "_template_alarms"
+	blockAlarmInterval       = time.Minute
 )
 
 func NewTemplateAlarmManager(app string) (*templateAlarmManager, error) {
@@ -77,13 +79,15 @@ func (a *templateAlarmManager) checkAlarm() {
 			alarm.StartCount = curCount
 			continue
 		}
-
+		if now.Sub(alarm.LastSendTime) < blockAlarmInterval {
+			continue
+		}
 		var (
-			threshold int64
+			threshold uint64
 			increase  bool
 		)
 		if alarm.UseRatio {
-			threshold = int64((1 + alarm.Ratio) * float64(alarm.StartCount))
+			threshold = uint64((1 + alarm.Ratio) * float64(alarm.StartCount))
 			increase = alarm.Ratio > 0
 		} else {
 			threshold = alarm.StartCount + alarm.Count
@@ -91,10 +95,12 @@ func (a *templateAlarmManager) checkAlarm() {
 		}
 		// 检查报警条件
 		if (increase && curCount >= threshold) || (!increase && curCount <= threshold) {
-			if err := sendAlarm(alarm, alarm.Email); err != nil {
+			if err := sendAlarm([]interface{}{alarm, templates[i]}, alarm.Email); err != nil {
 				global.GVA_LOG.Error("send template alarm failed", zap.String("app", a.app),
 					zap.Any("template_alarm", alarm), zap.Error(err))
+				continue
 			}
+			alarm.LastSendTime = now
 		}
 	}
 	if err := db.Table(GetTemplateAlarmTableName(a.app)).Save(&templateAlarms).Error; err != nil {
@@ -103,9 +109,12 @@ func (a *templateAlarmManager) checkAlarm() {
 }
 
 func sendAlarm(data interface{}, email string) error {
-	body, err := jsoniter.Marshal(data)
+	writer := bytes.NewBuffer([]byte{})
+	enc := jsoniter.NewEncoder(writer)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(data)
 	if err != nil {
 		return err
 	}
-	return utils.Send([]string{email}, "日志报警", string(body))
+	return utils.Send([]string{email}, "日志报警", string(writer.Bytes()))
 }

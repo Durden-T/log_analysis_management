@@ -203,6 +203,7 @@
           <el-input-number
             v-model="formData.ratio"
             :precision="2"
+            :step="0.1"
             clearable
           ></el-input-number>
         </el-form-item>

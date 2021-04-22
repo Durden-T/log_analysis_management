@@ -116,7 +116,7 @@ func FindTemplateAlarmStrategy(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err, res := service.GetTemplateAlarmStrategy(s.ID); err != nil {
+	if err, res := service.GetTemplateAlarmStrategy(s.ID, s.App); err != nil {
 		global.GVA_LOG.Error("查询失败!", zap.Any("err", err))
 		response.FailWithMessage("查询失败", c)
 	} else {
