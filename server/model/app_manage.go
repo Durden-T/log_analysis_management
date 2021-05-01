@@ -83,15 +83,17 @@ func (a *App) initTemplateCollector() error {
 		return err
 	}
 
+	//rand.Seed(time.Now().Unix())
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Topic:          a.KafkaOutputTopic,
 		Brokers:        cfg.Hosts,
+		//GroupID:        GroupID+strconv.Itoa(rand.Int()),
 		GroupID:        GroupID,
 		MinBytes:       cfg.ReadMinBytes,
 		MaxBytes:       cfg.ReadMaxBytes,
 		CommitInterval: cfg.CommitInterval,
-		//StartOffset:    kafka.LastOffset,
-		StartOffset:    kafka.FirstOffset,
+		StartOffset:    kafka.LastOffset,
+		//StartOffset:    kafka.FirstOffset,
 	})
 
 	a.TemplateCollector = NewTemplateCollector(a.Name, writer, reader, a.originalLogAlarmManager)
