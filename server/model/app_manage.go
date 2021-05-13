@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	"gin-vue-admin/global"
 	"github.com/segmentio/kafka-go"
 )
@@ -83,17 +84,15 @@ func (a *App) initTemplateCollector() error {
 		return err
 	}
 
-	//rand.Seed(time.Now().Unix())
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Topic:          a.KafkaOutputTopic,
 		Brokers:        cfg.Hosts,
-		//GroupID:        GroupID+strconv.Itoa(rand.Int()),
 		GroupID:        GroupID,
 		MinBytes:       cfg.ReadMinBytes,
 		MaxBytes:       cfg.ReadMaxBytes,
 		CommitInterval: cfg.CommitInterval,
-		StartOffset:    kafka.LastOffset,
-		//StartOffset:    kafka.FirstOffset,
+		//StartOffset:    kafka.LastOffset,
+		StartOffset:    kafka.FirstOffset,
 	})
 
 	a.TemplateCollector = NewTemplateCollector(a.Name, writer, reader, a.originalLogAlarmManager)
@@ -129,7 +128,6 @@ func (a *App) Stop() {
 //@description: 获取app的日志模版对应的表名
 //@param: app *model.App
 //@return: tableName string
-
 func GetTemplateTableName(app string) string {
 	return app + AppTemplateTableSuffix
 }

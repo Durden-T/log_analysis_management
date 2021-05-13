@@ -2,13 +2,14 @@ package model
 
 import (
 	"bytes"
+	"time"
+
 	"gin-vue-admin/global"
 	"gin-vue-admin/utils"
 	"github.com/antlabs/timer"
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 	"gorm.io/gorm/clause"
-	"time"
 )
 
 type templateAlarmManager struct {
@@ -112,6 +113,7 @@ func sendAlarm(data interface{}, email string) error {
 	writer := bytes.NewBuffer([]byte{})
 	enc := jsoniter.NewEncoder(writer)
 	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "/t")
 	err := enc.Encode(data)
 	if err != nil {
 		return err

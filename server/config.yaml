@@ -81,7 +81,7 @@ qiniu:
 
 kafka:
   hosts:
-    - 10.128.244.250:9092
+    - 192.168.1.106:9092
   read_min_bytes: 10e3 # 10kb
   read_max_bytes: 10e6 # 10mb
   commit_interval: 5s  # flushes commits to Kafka every 5 second
