@@ -120,3 +120,24 @@ func GetRealtimeResult(c *gin.Context) {
 		List: res,
 	}, "获取成功", c)
 }
+
+
+// @Tags LogTemplate
+// @Summary LogTemplate
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body model.LogTemplate true "更新日志模板"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
+// @Router /logTemplate/updateLogTemplate [put]
+func UpdateLogTemplate(c *gin.Context) {
+	var l model.LogTemplate
+	_ = c.ShouldBindJSON(&l)
+
+	if err := service.UpdateLogTemplate(l); err != nil {
+		global.GVA_LOG.Error("更新失败!", zap.Any("err", err))
+		response.FailWithMessage("更新失败", c)
+	} else {
+		response.OkWithMessage("更新成功", c)
+	}
+}

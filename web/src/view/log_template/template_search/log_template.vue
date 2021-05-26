@@ -20,6 +20,9 @@
         <el-form-item label="样例">
           <el-input placeholder="样例" v-model="searchInfo.content"></el-input>
         </el-form-item>
+         <el-form-item label="标签">
+          <el-input placeholder="标签" v-model="searchInfo.tag"></el-input>
+        </el-form-item>
         <el-form-item>
           <el-button @click="onSubmit" type="primary">查询</el-button>
         </el-form-item>
@@ -81,7 +84,11 @@
         prop="content"
         width="120"
       ></el-table-column>
-
+     <el-table-column
+        label="标签"
+        prop="tag"
+        width="120"
+      ></el-table-column>
       <el-table-column label="创建日期" width="180">
         <template slot-scope="scope">{{
           scope.row.CreatedAt | formatDate
@@ -96,6 +103,14 @@
 
       <el-table-column>
         <template slot-scope="scope">
+          <el-button
+            class="table-button"
+            @click="updateLogTemplate(scope.row)"
+            size="small"
+            type="primary"
+            icon="el-icon-edit"
+            >变更</el-button
+          >
           <el-button
             type="danger"
             icon="el-icon-delete"
@@ -147,6 +162,13 @@
             placeholder="请输入"
           ></el-input>
         </el-form-item>
+        <el-form-item label="标签:">
+          <el-input
+            v-model="formData.tag"
+            clearable
+            placeholder="请输入"
+          ></el-input>
+        </el-form-item>
       </el-form>
       <div class="dialog-footer" slot="footer">
         <el-button @click="closeDialog">取 消</el-button>
@@ -162,6 +184,7 @@ import {
   deleteLogTemplate,
   deleteLogTemplateByIds,
   getLogTemplateList,
+  updateLogTemplate,
 } from "@/api/log_template"; //  此处请自行替换地址
 import { formatTimeToStr } from "@/utils/date";
 import infoList from "@/mixins/infoList";
@@ -182,6 +205,7 @@ export default {
         size: 0,
         level: "",
         content: "",
+        tag:"",
       },
     };
   },
@@ -256,6 +280,7 @@ export default {
         size: 0,
         level: "",
         content: "",
+        tag: "",
       };
     },
     async deleteLogTemplate(row) {
@@ -272,18 +297,36 @@ export default {
       }
     },
     async enterDialog() {
-      let res = await createLogTemplate(this.formData);
+      let res;
+      switch (this.type) {
+        case "create":
+          res = await createLogTemplate(this.formData);
+          break;
+        case "update":
+          res = await updateLogTemplate(this.formData);
+          break;
+        default:
+          res = await createLogTemplate(this.formData);
+          break;
+      }
       if (res.code == 0) {
         this.$message({
           type: "success",
-          message: "创建成功",
+          message: "创建/更改成功",
         });
         this.closeDialog();
+        this.getTableData();
       }
     },
     openDialog() {
+      this.type = "create";
       this.dialogFormVisible = true;
     },
+    async updateLogTemplate(row) {
+      this.formData = row;
+      this.type = "update";
+      this.dialogFormVisible = true;
+    }
   },
 };
 </script>

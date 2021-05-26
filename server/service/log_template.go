@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"errors"
+
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
@@ -86,6 +87,9 @@ func GetLogTemplateInfoList(info request.LogTemplateSearch) (err error, list int
 	if info.Content != "" {
 		db = db.Where("`content` LIKE ?", "%"+info.Content+"%")
 	}
+	if info.Tag != "" {
+		db = db.Where("`tag` LIKE ?", "%"+info.Tag+"%")
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return
@@ -94,3 +98,15 @@ func GetLogTemplateInfoList(info request.LogTemplateSearch) (err error, list int
 	list = ls
 	return
 }
+
+//@author: [Durden-T](https://github.com/Durden-T)
+//@function: UpdateLogTemplate
+//@description: 更新日志模板
+//@param: l model.LogTemplate
+//@return: err error
+
+func UpdateLogTemplate(l model.LogTemplate) (err error) {
+	return global.GVA_DB.Table(model.GetTemplateTableName(l.App)).Model(&l).
+		UpdateColumn("tag", l.Tag).Error
+}
+

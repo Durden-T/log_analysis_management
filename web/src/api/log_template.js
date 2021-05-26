@@ -82,3 +82,20 @@ export const createLogTemplate = (data) => {
          params
      })
  }
+
+ 
+// @Tags LogTemplate
+// @Summary LogTemplate
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body model.LogTemplate true "更新日志模板"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
+// @Router /logTemplate/updateLogTemplate [put]
+export const updateLogTemplate = (data) => {
+    return service({
+        url: "/logTemplate/updateLogTemplate",
+        method: 'put',
+        data
+    })
+}
